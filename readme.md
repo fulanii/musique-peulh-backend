@@ -1,6 +1,8 @@
 # MusiquePeulh (Backend)
 
-This repo is the backend for MusiquePeulh a free and open source music streaming app, where users can discover and listen to Fulani music across West Africa and the Sahel region. Built with **Django Rest Framework (DRF)**, this backend provides secure authentication, user management, and music data APIs that power the frontend client.
+This repo is the backend for MusiquePeulh a free and open source music streaming app, where users can discover and 
+listen to Fulani music across West Africa and the Sahel region. Built with **Django Rest Framework (DRF)**, 
+this backend provides secure authentication, user management, and music data APIs that power the frontend client.
 
 ---
 
@@ -30,5 +32,5 @@ This repo is the backend for MusiquePeulh a free and open source music streaming
 Clone the repo and install dependencies:
 
 ```bash
-git clone https://github.com/fulanii/musiquepeulh-backend.git
-cd musiquepeulh-backend
+git clone https://github.com/fulanii/musique-peulh-backend
+cd musique-peulh-backend
