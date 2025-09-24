@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+*.egg
+*.manifest
+*.spec
+
+# Virtualenv
+env/
+venv/
+ENV/
+.venv/
+.env
+.env.*
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static/
+
+# VSCode / IDEs
+.vscode/
+.idea/
+*.swp
+
+# Mac / OS
+.DS_Store
+Thumbs.db
+
+# Coverage / Testing
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
+nosetests.xml
+report.xml
+
+# Migrations (optional – keep them if you want to version control DB schema!)
+# **Be careful deleting this if you're collaborating.**
+# */migrations/*.py
+# !*/migrations/__init__.py

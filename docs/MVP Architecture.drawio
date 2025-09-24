@@ -1,0 +1,46 @@
+<mxfile host="65bd71144e">
+    <diagram name="Page-1" id="Pjw6_A6g_Y8J-77p-zwo">
+        <mxGraphModel dx="1128" dy="662" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="FSxEZFbmSEFthyUNWO5R-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="FSxEZFbmSEFthyUNWO5R-1" target="FSxEZFbmSEFthyUNWO5R-3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="FSxEZFbmSEFthyUNWO5R-10" value="DB Queries" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="FSxEZFbmSEFthyUNWO5R-8" vertex="1" connectable="0">
+                    <mxGeometry x="-0.0265" y="3" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="FSxEZFbmSEFthyUNWO5R-1" value="Django (backend)" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+                    <mxGeometry x="310" y="260" width="110" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="FSxEZFbmSEFthyUNWO5R-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="FSxEZFbmSEFthyUNWO5R-2" target="FSxEZFbmSEFthyUNWO5R-1" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="FSxEZFbmSEFthyUNWO5R-6" value="API call&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="FSxEZFbmSEFthyUNWO5R-5" vertex="1" connectable="0">
+                    <mxGeometry x="-0.2857" y="-2" relative="1" as="geometry">
+                        <mxPoint x="2" y="15" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="FSxEZFbmSEFthyUNWO5R-2" value="Front end (react)" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+                    <mxGeometry x="310" y="80" width="110" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="FSxEZFbmSEFthyUNWO5R-3" value="Supabase (Postgres)&amp;nbsp;&lt;div&gt;- User data&lt;/div&gt;&lt;div&gt;- Song meta data&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="430" width="125" height="125" as="geometry"/>
+                </mxCell>
+                <mxCell id="FSxEZFbmSEFthyUNWO5R-4" value="Digitalocean&amp;nbsp;spaces&amp;nbsp;&lt;div&gt;- MP3s, Covers&amp;nbsp;&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="430" width="130" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="FSxEZFbmSEFthyUNWO5R-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.558;entryY=0.038;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="FSxEZFbmSEFthyUNWO5R-1" target="FSxEZFbmSEFthyUNWO5R-4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="FSxEZFbmSEFthyUNWO5R-9" value="Upload/Read songs" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="FSxEZFbmSEFthyUNWO5R-7" vertex="1" connectable="0">
+                    <mxGeometry x="0.1844" y="-3" relative="1" as="geometry">
+                        <mxPoint x="17" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
