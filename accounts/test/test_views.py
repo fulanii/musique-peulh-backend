@@ -1,6 +1,9 @@
 import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
+from django.core.exceptions import ValidationError
+
+from accounts.models import CustomUser
 
 
 @pytest.mark.django_db
@@ -22,6 +25,7 @@ def test_user_can_register():
 @pytest.mark.django_db
 def test_user_can_login():
     client = APIClient()
+
     register_data = {
         "email": "test@example.com",
         "username": "testuser",
@@ -31,6 +35,7 @@ def test_user_can_login():
         "email": "test@example.com",
         "password": "testpass123",
     }
+
     register_url = reverse("register")
     register_user = client.post(register_url, register_data, format="json")
 
