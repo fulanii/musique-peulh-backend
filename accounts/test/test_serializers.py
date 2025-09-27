@@ -2,7 +2,7 @@ import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-
+@pytest.mark.django_db
 class TestSerializer:
     def test_email_invalid(self):
         client = APIClient()
