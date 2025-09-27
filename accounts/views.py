@@ -75,6 +75,24 @@ class LoginUser(APIView):
         )
 
 
+# @extend_schema(tags=["credentials"])
+class PasswordReset:  # TODO: Finish reset password
+    """
+    View to reset users password in the system using
+
+    * email: to recieve code
+    """
+
+
+# @extend_schema(tags=["credentials"])
+class Verification:  # TODO: Finish verification
+    """
+    View to verify users by sending code to email
+
+    * email: to recieve code
+    """
+
+
 # {
 #   "email": "yassine@yassinecodes.dev",
 #   "username": "yassine",
