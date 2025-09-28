@@ -21,5 +21,3 @@ class TestModels:
         user.set_password("strongpass123")
         with pytest.raises(ValidationError):
             user.full_clean()
-
-
