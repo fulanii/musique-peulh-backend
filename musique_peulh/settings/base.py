@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "accounts",
     "songs",
+    "storages",
 ]
 
 
@@ -146,3 +147,17 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     # OTHER SETTINGS
 }
+
+...
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.11/howto/static-files/
+
+AWS_ACCESS_KEY_ID = os.getenv("DO_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("DO_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("DO_STORAGE_BUCKET_NAME")
+AWS_S3_ENDPOINT_URL = os.getenv("DO_S3_ENDPOINT_URL")
+region_name = os.getenv("REGION_NAME")
+AWS_DEFAULT_ACL = None 
+
+# Default file storage backend
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
