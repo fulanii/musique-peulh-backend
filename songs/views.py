@@ -20,17 +20,45 @@ class AllSongs(ListAPIView):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
+
+@extend_schema(tags=["songs"])
+class ArtistSongs(ListAPIView):
+    """
+    A view to get all songs by an artist
+    """
+    
+    serializer_class = SongSerializer
+
+    def get_queryset(self):
+        artist_name = self.kwargs['artist_name']
+        return Song.objects.filter(artist_name=artist_name)
+
+
+@extend_schema(tags=["songs"])
+class UploadedBySongs(ListAPIView):
+    """
+    A view to get all songs uploaded by a certain user
+    """
+    
+    serializer_class = SongSerializer
+
+    def get_queryset(self):
+        uploaded_by = self.kwargs['uploaded_by']
+        return Song.objects.filter(uploaded_by=uploaded_by)
+
+
 @extend_schema(tags=["songs"])
 class GetSong(RetrieveAPIView):
     """
-    A view to get a specific song using its title 
+    A view to get a specific song using its title
     """
+
     serializer_class = SongSerializer
     queryset = Song.objects.all()
     lookup_field = "title"
 
     def get_object(self):
-        title = self.kwargs.get(self.lookup_field).title()
+        title = self.kwargs.get(self.lookup_field)
         return Song.objects.get(title=title)
 
 
@@ -72,10 +100,8 @@ class SongUpload(APIView):
         audio_file = request.FILES["audio_file"]
         cover_file = request.FILES["cover_image"]
 
-        # Check if song already exists
-        formated_tittle = title.title()
 
-        if Song.objects.filter(title=formated_tittle).exists():
+        if Song.objects.filter(title=title).exists():
             return Response(
                 {"error": f"Song with title '{title}' already exists."},
                 status=status.HTTP_400_BAD_REQUEST,
