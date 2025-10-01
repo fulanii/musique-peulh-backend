@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 
@@ -20,6 +20,19 @@ class AllSongs(ListAPIView):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
+@extend_schema(tags=["songs"])
+class GetSong(RetrieveAPIView):
+    """
+    A view to get a specific song using its title 
+    """
+    serializer_class = SongSerializer
+    queryset = Song.objects.all()
+    lookup_field = "title"
+
+    def get_object(self):
+        title = self.kwargs.get(self.lookup_field).title()
+        return Song.objects.get(title=title)
+
 
 @extend_schema(tags=["songs"])
 class SongUpload(APIView):
@@ -31,7 +44,7 @@ class SongUpload(APIView):
     parser_classes = [MultiPartParser, FormParser]
     queryset = Song.objects.all()
     serializer_class = SongSerializer
-    
+
     def post(self, request):
         text_fields = ["title", "artist_name", "duration", "upload_by"]
         file_fields = ["audio_file", "cover_image"]
@@ -87,4 +100,3 @@ class SongUpload(APIView):
 
         serializer = SongSerializer(new_song)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
