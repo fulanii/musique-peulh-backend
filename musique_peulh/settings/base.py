@@ -157,7 +157,17 @@ AWS_SECRET_ACCESS_KEY = os.getenv("DO_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.getenv("DO_STORAGE_BUCKET_NAME")
 AWS_S3_ENDPOINT_URL = os.getenv("DO_S3_ENDPOINT_URL")
 region_name = os.getenv("REGION_NAME")
+AUDIO_FOLDER = os.getenv("AUDIO_FOLDER")
+COVER_FOLDER = os.getenv("COVER_FOLDER")
 AWS_DEFAULT_ACL = None
 
 # Default file storage backend
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+# local Database
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
