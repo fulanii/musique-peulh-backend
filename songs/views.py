@@ -26,11 +26,11 @@ class ArtistSongs(ListAPIView):
     """
     A view to get all songs by an artist
     """
-    
+
     serializer_class = SongSerializer
 
     def get_queryset(self):
-        artist_name = self.kwargs['artist_name']
+        artist_name = self.kwargs["artist_name"]
         return Song.objects.filter(artist_name=artist_name)
 
 
@@ -38,12 +38,14 @@ class ArtistSongs(ListAPIView):
 class UploadedBySongs(ListAPIView):
     """
     A view to get all songs uploaded by a certain user
+
+    - username
     """
-    
+
     serializer_class = SongSerializer
 
     def get_queryset(self):
-        uploaded_by = self.kwargs['uploaded_by']
+        uploaded_by = self.kwargs["uploaded_by"]
         return Song.objects.filter(uploaded_by=uploaded_by)
 
 
@@ -62,7 +64,22 @@ class GetSong(RetrieveAPIView):
         return Song.objects.get(title=title)
 
 
-@extend_schema(tags=["songs"])
+@extend_schema(
+    request={
+        "multipart/form-data": {
+            "type": "object",
+            "properties": {
+                "title": {"type": "string"},
+                "artist_name": {"type": "string"},
+                "duration": {"type": "string"},
+                "upload_by": {"type": "string"},
+                "audio_file": {"type": "string", "format": "binary"},
+                "cover_image": {"type": "string", "format": "binary"},
+            },
+        }
+    },
+    tags=["songs"],
+)
 class SongUpload(APIView):
     """
     Upload a song + cover image to DigitalOcean Spaces,
@@ -96,10 +113,9 @@ class SongUpload(APIView):
         title = request.data["title"]
         artist_name = request.data["artist_name"]
         duration = request.data["duration"]
-        uploaded_by = request.data["uploaded_by"]
+        uploaded_by = request.data["upload_by"]
         audio_file = request.FILES["audio_file"]
         cover_file = request.FILES["cover_image"]
-
 
         if Song.objects.filter(title=title).exists():
             return Response(
