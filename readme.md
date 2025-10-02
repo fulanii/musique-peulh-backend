@@ -11,6 +11,7 @@ this backend provides secure authentication, user management, and music data API
 - User registration and login with **JWT authentication**  
 - Account management (sign up, log in, log out, refresh tokens)  
 - Music catalog endpoints (artists, playlists)  
+- Music upload to  s3 compatible DigitalOcean storage spaces
 - Secure API design with DRF best practices  
 - Environment-based settings (local, production)  
 - SQLite for development (switchable to Postgres/MySQL in production)  
