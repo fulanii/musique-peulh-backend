@@ -145,7 +145,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Fulani music streaming website",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    # OTHER SETTINGS
+    "COMPONENT_SPLIT_REQUEST": True,
 }
 
 ...
