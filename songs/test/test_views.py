@@ -76,3 +76,19 @@ def test_upload_by(song):
     assert response.data[0]["uploaded_by"] == "Yassine"
     assert "Denke Denke" in response.data[0]["title"]
     assert "Disco Fils" in response.data[0]["artist_name"]
+
+
+def test_all_songs(song):
+    url = reverse("all_songs")
+
+    client = APIClient()
+
+    response = client.get(url)
+
+    assert response.status_code == 200
+    assert response.data[0]["title"] == "Denke Denke" 
+    assert response.data[0]["artist_name"] == "Disco Fils"
+    assert response.data[0]["duration"]  == 3.12  
+    assert response.data[0]["uploaded_by"] == "Yassine"
+    assert response.data[0]["audio_file"] == "https://fake-bucket/song.mp3"
+    assert response.data[0]["cover_image"] == "https://fake-bucket/cover.jpg"

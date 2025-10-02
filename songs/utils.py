@@ -3,6 +3,11 @@ import boto3
 from botocore.exceptions import NoCredentialsError, ClientError, EndpointConnectionError
 import uuid
 from django.conf import settings
+from dotenv import load_dotenv
+
+
+# load .env file
+load_dotenv()
 
 
 def sanitize_filename(file_name: str) -> str:
@@ -37,14 +42,14 @@ def upload_do(audio_file, cover_file) -> dict[str, str]:
         # Upload files to DO Spaces
         s3.upload_fileobj(
             audio_file,
-            "Songs",  # settings.AWS_STORAGE_BUCKET_NAME
+            settings.AUDIO_FOLDER,
             audio_filename,
             ExtraArgs={"ACL": "public-read", "ContentType": audio_file.content_type},
         )
 
         s3.upload_fileobj(
             cover_file,
-            "SongsCovers",  # settings.AWS_STORAGE_BUCKET_NAME
+            settings.COVER_FOLDER,
             cover_filename,
             ExtraArgs={"ACL": "public-read", "ContentType": cover_file.content_type},
         )

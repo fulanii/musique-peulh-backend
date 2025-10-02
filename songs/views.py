@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 
@@ -10,6 +11,7 @@ from .models import Song
 from .utils import upload_do
 from .serializer import SongSerializer, SongUploadSerializer
 
+# TODO: Add login user restriction [IsAuthenticated] and [IsAdminUser] to respective views
 
 @extend_schema(tags=["songs"])
 class AllSongs(ListAPIView):
@@ -142,3 +144,6 @@ class SongUpload(APIView):
 
         serializer = SongSerializer(new_song)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# TODO: Create playlist logic creating/adding/removing songs urls/views
