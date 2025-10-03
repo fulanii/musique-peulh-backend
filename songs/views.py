@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
@@ -11,23 +12,27 @@ from .models import Song
 from .utils import upload_do
 from .serializer import SongSerializer, SongUploadSerializer
 
-# TODO: Add login user restriction [IsAuthenticated] and [IsAdminUser] to respective views
+# TODO: Add login user restriction [JWTAuthentication] and [IsAdminUser] to respective views
 
-@extend_schema(tags=["songs"])
+@extend_schema(tags=["Songs"])
 class AllSongs(ListAPIView):
     """
     A view to get all songs
     """
 
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
 
-@extend_schema(tags=["songs"])
+@extend_schema(tags=["Songs"])
 class ArtistSongs(ListAPIView):
     """
     A view to get all songs by an artist
     """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     serializer_class = SongSerializer
 
@@ -36,13 +41,15 @@ class ArtistSongs(ListAPIView):
         return Song.objects.filter(artist_name=artist_name)
 
 
-@extend_schema(tags=["songs"])
+@extend_schema(tags=["Songs-admin"])
 class UploadedBySongs(ListAPIView):
     """
     A view to get all songs uploaded by a certain user
-
     - username
     """
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     serializer_class = SongSerializer
 
@@ -51,11 +58,13 @@ class UploadedBySongs(ListAPIView):
         return Song.objects.filter(uploaded_by=uploaded_by)
 
 
-@extend_schema(tags=["songs"])
+@extend_schema(tags=["Songs"])
 class GetSong(RetrieveAPIView):
     """
     A view to get a specific song using its title
     """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     serializer_class = SongSerializer
     queryset = Song.objects.all()
@@ -80,13 +89,15 @@ class GetSong(RetrieveAPIView):
             },
         }
     },
-    tags=["songs"],
+    tags=["Songs-admin"],
 )
 class SongUpload(APIView):
     """
     Upload a song + cover image to DigitalOcean Spaces,
     save their URLs in the database.
     """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     parser_classes = [MultiPartParser, FormParser]
     queryset = Song.objects.all()
