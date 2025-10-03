@@ -2,6 +2,8 @@ import pytest
 
 from django.urls import reverse
 from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import AccessToken
+from accounts.models import CustomUser
 
 from songs.models import Song
 
@@ -18,9 +20,38 @@ def song(db):
     )
 
 
-@pytest.mark.django_db
-def test_song_upload():
+@pytest.fixture
+def login():
     client = APIClient()
+
+    register_data = {
+        "email": "test@example.com",
+        "username": "testuser",
+        "password": "testpass123",
+    }
+    login_data = {
+        "email": "test@example.com",
+        "password": "testpass123",
+    }
+
+    register_url = reverse("register")
+    register_user = client.post(register_url, register_data, format="json")
+
+    # Make the user admin
+    user = CustomUser.objects.get(email=register_data["email"])
+    user.is_staff = True
+    user.is_superuser = True
+    user.save()
+
+    login_url = reverse("login")
+    login_user = client.post(login_url, login_data, format="json")
+
+    return login_user.data["access"]
+
+
+@pytest.mark.django_db
+def test_song_upload(login):
+    client = APIClient(HTTP_AUTHORIZATION=f"Bearer {login}")
 
     url = reverse("upload")
 
@@ -41,10 +72,10 @@ def test_song_upload():
         assert response.status_code == 201
 
 
-def test_get_song(song):
-    url = "/api/song/title/denke denke/"
+def test_get_song(song, login):
+    url = "/api/songs/titles/denke denke/"
 
-    client = APIClient()
+    client = APIClient(HTTP_AUTHORIZATION=f"Bearer {login}")
 
     response = client.get(url)
 
@@ -53,10 +84,10 @@ def test_get_song(song):
     assert response.data["artist_name"] == "Disco Fils"
 
 
-def test_get_artist(song):
-    url = "/api/song/artist/disco fils/"
+def test_get_artist(song, login):
+    url = "/api/songs/artists/disco fils/"
 
-    client = APIClient()
+    client = APIClient(HTTP_AUTHORIZATION=f"Bearer {login}")
 
     response = client.get(url)
 
@@ -65,10 +96,10 @@ def test_get_artist(song):
     assert "Disco Fils" in response.data[0]["artist_name"]
 
 
-def test_upload_by(song):
-    url = "/api/song/upload_by/yassine/"
+def test_upload_by(song, login):
+    url = "/api/songs/upload_by/yassine/"
 
-    client = APIClient()
+    client = APIClient(HTTP_AUTHORIZATION=f"Bearer {login}")
 
     response = client.get(url)
 
@@ -78,10 +109,10 @@ def test_upload_by(song):
     assert "Disco Fils" in response.data[0]["artist_name"]
 
 
-def test_all_songs(song):
+def test_all_songs(song, login):
     url = reverse("all_songs")
 
-    client = APIClient()
+    client = APIClient(HTTP_AUTHORIZATION=f"Bearer {login}")
 
     response = client.get(url)
 
@@ -92,3 +123,4 @@ def test_all_songs(song):
     assert response.data[0]["uploaded_by"] == "Yassine"
     assert response.data[0]["audio_file"] == "https://fake-bucket/song.mp3"
     assert response.data[0]["cover_image"] == "https://fake-bucket/cover.jpg"
+

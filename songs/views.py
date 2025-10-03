@@ -14,7 +14,7 @@ from .serializer import SongSerializer, SongUploadSerializer
 
 # TODO: Add login user restriction [JWTAuthentication] and [IsAdminUser] to respective views
 
-@extend_schema(tags=["Songs"])
+@extend_schema(tags=["songs"])
 class AllSongs(ListAPIView):
     """
     A view to get all songs
@@ -26,7 +26,7 @@ class AllSongs(ListAPIView):
     serializer_class = SongSerializer
 
 
-@extend_schema(tags=["Songs"])
+@extend_schema(tags=["songs"])
 class ArtistSongs(ListAPIView):
     """
     A view to get all songs by an artist
@@ -41,7 +41,7 @@ class ArtistSongs(ListAPIView):
         return Song.objects.filter(artist_name=artist_name)
 
 
-@extend_schema(tags=["Songs-admin"])
+@extend_schema(tags=["songs-admin"])
 class UploadedBySongs(ListAPIView):
     """
     A view to get all songs uploaded by a certain user
@@ -58,7 +58,7 @@ class UploadedBySongs(ListAPIView):
         return Song.objects.filter(uploaded_by=uploaded_by)
 
 
-@extend_schema(tags=["Songs"])
+@extend_schema(tags=["songs"])
 class GetSong(RetrieveAPIView):
     """
     A view to get a specific song using its title
@@ -89,7 +89,7 @@ class GetSong(RetrieveAPIView):
             },
         }
     },
-    tags=["Songs-admin"],
+    tags=["songs-admin"],
 )
 class SongUpload(APIView):
     """
