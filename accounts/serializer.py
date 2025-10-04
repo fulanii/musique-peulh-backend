@@ -63,3 +63,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["email"] = user.email
 
         return token
+
+
+class VerificationSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.IntegerField()

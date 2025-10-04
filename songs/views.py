@@ -14,6 +14,7 @@ from .serializer import SongSerializer, SongUploadSerializer
 
 # TODO: Add login user restriction [JWTAuthentication] and [IsAdminUser] to respective views
 
+
 @extend_schema(tags=["songs"])
 class AllSongs(ListAPIView):
     """
@@ -31,6 +32,7 @@ class ArtistSongs(ListAPIView):
     """
     A view to get all songs by an artist
     """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -63,6 +65,7 @@ class GetSong(RetrieveAPIView):
     """
     A view to get a specific song using its title
     """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -96,6 +99,7 @@ class SongUpload(APIView):
     Upload a song + cover image to DigitalOcean Spaces,
     save their URLs in the database.
     """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAdminUser]
 

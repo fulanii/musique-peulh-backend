@@ -16,6 +16,8 @@ class CustomUser(AbstractUser):
             )
         ],
     )
-
+    is_verified = models.BooleanField(default=False)
+    verification_code = models.IntegerField(null=True)
     USERNAME_FIELD = "email"  # now use email to login
     REQUIRED_FIELDS = ["username"]  # required when creating superuser
+

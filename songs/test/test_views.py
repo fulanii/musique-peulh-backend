@@ -117,10 +117,9 @@ def test_all_songs(song, login):
     response = client.get(url)
 
     assert response.status_code == 200
-    assert response.data[0]["title"] == "Denke Denke" 
+    assert response.data[0]["title"] == "Denke Denke"
     assert response.data[0]["artist_name"] == "Disco Fils"
-    assert response.data[0]["duration"]  == 3.12  
+    assert response.data[0]["duration"] == 3.12
     assert response.data[0]["uploaded_by"] == "Yassine"
     assert response.data[0]["audio_file"] == "https://fake-bucket/song.mp3"
     assert response.data[0]["cover_image"] == "https://fake-bucket/cover.jpg"
-

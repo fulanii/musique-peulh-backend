@@ -9,7 +9,8 @@ from drf_spectacular.utils import extend_schema
 
 
 from .models import CustomUser
-from .serializer import RegisterSerializer, LoginSerializer
+from .serializer import RegisterSerializer, LoginSerializer, VerificationSerializer
+from .utils import generate_strong_6_digit_number
 
 
 @extend_schema(tags=["credentials"])
@@ -30,10 +31,16 @@ class RegisterUser(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
+        verification_code = generate_strong_6_digit_number()
+        serializer.instance.verification_code = verification_code
+        serializer.instance.save()
+
+        # TODO: Send Verification code email, Update success msg: Account created successfully, verification email sent!
+
         # Custom response data
         custom_data = {
             "registration_success": True,
-            "message": "Account created successfully!",
+            "message": "Account created successfully",
             "id": serializer.instance.pk,  # created object's ID
             "email": serializer.data["email"],
             "username": serializer.data["username"],
@@ -75,6 +82,42 @@ class LoginUser(APIView):
         )
 
 
+@extend_schema(tags=["credentials"])
+class Verification(APIView):
+    """
+    View to verify users by checking user verification code
+
+    * email: user email they received code to
+    * code: code receive to email
+    """
+
+    serializer_class = VerificationSerializer
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        email = data.get("email")
+        code = data.get("code")
+
+        user = CustomUser.objects.get(email=email)
+
+        if not user:
+            return Response({"error": "User not found"}, status=404)
+
+        if user.verification_code != code:
+            return Response({"error": "Invalid code"}, status=400)
+
+        #TODO: Add code_expires_at
+        # if user.code_expires_at < timezone.now():
+        #     return Response({"error": "Code expired"}, status=400)
+        # user.code_expires_at = None
+
+        user.is_verified = True
+        user.verification_code = None
+        user.save()
+
+        return Response({"detail": "Email verified. You can now log in."})
+
+
 # @extend_schema(tags=["credentials"])
 class PasswordReset:  # TODO: Finish reset password
     """
@@ -82,19 +125,3 @@ class PasswordReset:  # TODO: Finish reset password
 
     * email: to recieve code
     """
-
-
-# @extend_schema(tags=["credentials"])
-class Verification:  # TODO: Finish verification
-    """
-    View to verify users by sending code to email
-
-    * email: to recieve code
-    """
-
-
-# {
-#   "email": "yassine@yassinecodes.dev",
-#   "username": "yassine",
-#   "password": "password"
-# }
