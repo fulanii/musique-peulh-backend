@@ -14,7 +14,7 @@ this backend provides secure authentication, user management, and music data API
 - Music upload to  s3 compatible DigitalOcean storage spaces
 - Secure API design with DRF best practices  
 - Environment-based settings (local, production)  
-- SQLite for development (switchable to Postgres/MySQL in production)  
+- SQLite for development (switchable to Postgres in production)  
 
 ---
 
@@ -24,7 +24,7 @@ this backend provides secure authentication, user management, and music data API
 - **Django 5**
 - **Django Rest Framework**
 - **SimpleJWT** for authentication
-- **SQLite3** (dev) / Postgres (prod)
+- **SQLite3** (dev) / **Postgres** (prod)
 
 ---
 
