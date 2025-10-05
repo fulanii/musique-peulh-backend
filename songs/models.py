@@ -15,7 +15,7 @@ class SongManager(models.Manager):
 
 
 class Song(models.Model):
-    title = models.CharField(max_length=255, unique=True)
+    title = models.CharField(max_length=255)
     artist_name = models.CharField(max_length=255)
     duration = models.FloatField()
 

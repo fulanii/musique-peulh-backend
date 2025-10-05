@@ -86,7 +86,7 @@ class GetSong(RetrieveAPIView):
                 "title": {"type": "string"},
                 "artist_name": {"type": "string"},
                 "duration": {"type": "string"},
-                "upload_by": {"type": "string"},
+                "uploaded_by": {"type": "string"},
                 "audio_file": {"type": "string", "format": "binary"},
                 "cover_image": {"type": "string", "format": "binary"},
             },
@@ -100,46 +100,26 @@ class SongUpload(APIView):
     save their URLs in the database.
     """
 
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     parser_classes = [MultiPartParser, FormParser]
     queryset = Song.objects.all()
-    serializer_class = SongSerializer
 
     def post(self, request):
-        text_fields = ["title", "artist_name", "duration", "upload_by"]
-        file_fields = ["audio_file", "cover_image"]
+        # validate data being uploaded
+        upload_serializer = SongUploadSerializer(data=request.data)
+        upload_serializer.is_valid(raise_exception=True)
 
-        missing = []
-
-        for field in text_fields:
-            if not request.data.get(field):
-                missing.append(field)
-
-        for field in file_fields:
-            if not request.FILES.get(field):
-                missing.append(field)
-
-        if missing:
-            return Response(
-                {"error": f"Missing required field(s): {', '.join(missing)}"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
+        # grab data from request
         title = request.data["title"]
         artist_name = request.data["artist_name"]
         duration = request.data["duration"]
-        uploaded_by = request.data["upload_by"]
+        uploaded_by = request.data["uploaded_by"]
         audio_file = request.FILES["audio_file"]
         cover_file = request.FILES["cover_image"]
 
-        if Song.objects.filter(title=title).exists():
-            return Response(
-                {"error": f"Song with title '{title}' already exists."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
+        # upload audio and cover image files to digital ocean spaces
         try:
             urls = upload_do(audio_file=audio_file, cover_file=cover_file)
         except Exception as e:
@@ -148,6 +128,7 @@ class SongUpload(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+        # save song info to db along side media urls
         new_song = Song.objects.create(
             title=title,
             artist_name=artist_name,
@@ -157,8 +138,10 @@ class SongUpload(APIView):
             cover_image=urls["cover_url"],
         )
 
-        serializer = SongSerializer(new_song)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # serialize data to return to client
+        save_serializer = SongSerializer(new_song)
+
+        return Response(save_serializer.data, status=status.HTTP_201_CREATED)
 
 
 # TODO: Create playlist logic creating/adding/removing songs urls/views

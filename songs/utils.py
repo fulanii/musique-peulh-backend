@@ -68,3 +68,15 @@ def upload_do(audio_file, cover_file) -> dict[str, str]:
         raise RuntimeError(f"Spaces client error: {e.response['Error']['Message']}")
     except Exception as e:
         raise RuntimeError(f"Unexpected upload error: {str(e)}")
+
+
+# TODO: get duration automatically
+def get_audio_duration():
+    """Method to automatically extrac audio file duration"""
+    ...
+
+
+# TODO: pick random song cover from a databse of song covers
+
+
+# TODO: Auto covert audio files to mp3
