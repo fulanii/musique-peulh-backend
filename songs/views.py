@@ -100,8 +100,8 @@ class SongUpload(APIView):
     save their URLs in the database.
     """
 
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated, IsAdminUser]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     parser_classes = [MultiPartParser, FormParser]
     queryset = Song.objects.all()
