@@ -9,7 +9,7 @@ from rest_framework import status
 from drf_spectacular.utils import extend_schema
 
 from .models import Song
-from .utils import upload_do
+from .utils import upload_do, get_audio_duration
 from .serializer import SongSerializer, SongUploadSerializer
 
 # TODO: Add login user restriction [JWTAuthentication] and [IsAdminUser] to respective views
@@ -85,8 +85,8 @@ class GetSong(RetrieveAPIView):
             "properties": {
                 "title": {"type": "string"},
                 "artist_name": {"type": "string"},
-                "duration": {"type": "string"},
-                "uploaded_by": {"type": "string"},
+                # "duration": {"type": "string"},
+                # "uploaded_by": {"type": "string"},
                 "audio_file": {"type": "string", "format": "binary"},
                 "cover_image": {"type": "string", "format": "binary"},
             },
@@ -114,8 +114,6 @@ class SongUpload(APIView):
         # grab data from request
         title = request.data["title"]
         artist_name = request.data["artist_name"]
-        duration = request.data["duration"]
-        uploaded_by = request.data["uploaded_by"]
         audio_file = request.FILES["audio_file"]
         cover_file = request.FILES["cover_image"]
 
@@ -132,8 +130,8 @@ class SongUpload(APIView):
         new_song = Song.objects.create(
             title=title,
             artist_name=artist_name,
-            duration=duration,
-            uploaded_by=uploaded_by,
+            duration=get_audio_duration(audio_file=audio_file),
+            uploaded_by=request.user.username,
             audio_file=urls["audio_url"],
             cover_image=urls["cover_url"],
         )

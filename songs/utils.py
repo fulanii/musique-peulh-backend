@@ -4,6 +4,9 @@ from botocore.exceptions import NoCredentialsError, ClientError, EndpointConnect
 import uuid
 from django.conf import settings
 from dotenv import load_dotenv
+from mutagen.mp3 import MP3
+from mutagen import MutagenError
+from rest_framework.exceptions import ValidationError
 
 
 # load .env file
@@ -70,10 +73,24 @@ def upload_do(audio_file, cover_file) -> dict[str, str]:
         raise RuntimeError(f"Unexpected upload error: {str(e)}")
 
 
-# TODO: get duration automatically
-def get_audio_duration():
-    """Method to automatically extrac audio file duration"""
-    ...
+def get_audio_duration(audio_file):
+    """
+    Extract audio file duration in minutes.seconds format.
+    Raises ValidationError if file is invalid or unreadable.
+    """
+    try:
+        audio = MP3(audio_file)
+        duration_seconds = round(audio.info.length)
+        minutes = duration_seconds // 60
+        seconds = duration_seconds % 60
+        return f"{minutes}.{seconds}"
+
+    except MutagenError:
+        raise ValidationError("Invalid or corrupt MP3 file.")
+    except (AttributeError, OSError, TypeError):
+        raise ValidationError("Could not read the audio file.")
+    except Exception as e:
+        raise ValidationError(f"Unexpected error reading audio: {str(e)}")
 
 
 # TODO: pick random song cover from a databse of song covers

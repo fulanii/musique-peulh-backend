@@ -15,11 +15,11 @@ class SongSerializer(serializers.ModelSerializer):
 class SongUploadSerializer(serializers.Serializer):
     title = serializers.CharField()
     artist_name = serializers.CharField()
-    duration = serializers.FloatField()
+    upload_date = serializers.DateField(format="%Y-%m-%d", read_only=True)
+
+    # files
     audio_file = serializers.FileField()
     cover_image = serializers.ImageField()
-    uploaded_by = serializers.CharField()
-    upload_date = serializers.DateField(format="%Y-%m-%d", read_only=True)
 
     def validate(self, data):
         ALLOWED_AUDIO_TYPES = ["audio/mpeg"]
@@ -34,7 +34,9 @@ class SongUploadSerializer(serializers.Serializer):
 
         if Song.objects.filter(artist_name=artist_name, title=title).exists():
             raise serializers.ValidationError(
-                f"Artist '{artist_name}' already has a song titled '{title}'."
+                {
+                    "error": f"Artist '{artist_name}' already has a song titled '{title}'."
+                }
             )
 
         if data["audio_file"].content_type not in ALLOWED_AUDIO_TYPES:
