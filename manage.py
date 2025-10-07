@@ -4,16 +4,18 @@ import os
 import sys
 from dotenv import load_dotenv
 
+# Load from .env
+load_dotenv()
 
 def main():
     """Run administrative tasks."""
-    # Load from .env
-    load_dotenv()
+
+    print("Env:", os.getenv("DJANGO_SETTINGS_MODULE"))
 
     # Use DJANGO_SETTINGS_MODULE from .env or fallback to local
     os.environ.setdefault(
         "DJANGO_SETTINGS_MODULE",
-        os.getenv("DJANGO_SETTINGS_MODULE", "musique_peulh.settings.local"),
+        os.getenv("DJANGO_SETTINGS_MODULE"),
     )
 
     try:
