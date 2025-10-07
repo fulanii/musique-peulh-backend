@@ -105,6 +105,7 @@ class SongUpload(APIView):
 
     parser_classes = [MultiPartParser, FormParser]
     queryset = Song.objects.all()
+    serializer_class = SongSerializer
 
     def post(self, request):
         # validate data being uploaded
