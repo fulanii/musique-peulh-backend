@@ -17,6 +17,7 @@ ENV/
 .venv/
 .env
 .env.*
+.python-version
 
 # Django
 *.log
