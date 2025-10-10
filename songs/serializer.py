@@ -30,8 +30,6 @@ class SongUploadSerializer(serializers.Serializer):
         data["artist_name"] = artist_name
         data["title"] = title
 
-        print(f"artist, title: {artist_name, title}")
-
         if Song.objects.filter(artist_name=artist_name, title=title).exists():
             raise serializers.ValidationError(
                 {

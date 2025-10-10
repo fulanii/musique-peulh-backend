@@ -31,16 +31,13 @@ from drf_spectacular.views import (
 urlpatterns = [
     # admin
     path("admin/", admin.site.urls),
-    
     # tokens
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/blacklist/", TokenBlacklistView.as_view(), name="token_blacklist"),
-
     # my apps urls
     path("api/", include("accounts.urls")),
     path("api/", include("songs.urls")),
-
 ]
 
 if settings.DEBUG:

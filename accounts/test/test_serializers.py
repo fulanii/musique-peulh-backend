@@ -41,4 +41,3 @@ class TestSerializer:
     # TODO: Add 1 login serializer test
 
     # TODO: Add verification serializer test
-

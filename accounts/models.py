@@ -21,3 +21,9 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = "email"  # now use email to login
     REQUIRED_FIELDS = ["username"]  # required when creating superuser
 
+    def __str__(self):
+        return f"User with username: {self.username} and email: {self.email}"
+
+    # def save(self, *args, **kwargs):
+    #     self.username = self.username.lower()
+    #     super().save(*args, **kwargs)

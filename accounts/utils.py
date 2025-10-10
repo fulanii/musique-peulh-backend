@@ -10,5 +10,5 @@ def generate_strong_6_digit_number():
 
 
 # TODO: implement this using my domain (no-reply@musiquepeulh.com) and resend
-def send_verification_email(): 
+def send_verification_email():
     """Send verification code to user email"""

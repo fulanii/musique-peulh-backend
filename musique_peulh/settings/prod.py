@@ -55,7 +55,7 @@ SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Trust the proxy (for setups behind Nginx, Gunicorn, etc.)
 USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Optionally, disable browser XSS protection (deprecated but safe)
 SECURE_BROWSER_XSS_FILTER = False

@@ -5,13 +5,13 @@ from django.core.exceptions import ValidationError
 
 from accounts.models import CustomUser
 
+
 @pytest.fixture
 def user(db):
     return CustomUser.objects.create(
-        email = "test@example.com",
-        username =  "test",
-        verification_code = 524469
+        email="test@example.com", username="test", verification_code=524469
     )
+
 
 @pytest.mark.django_db
 def test_user_can_register():
@@ -60,14 +60,9 @@ def test_verification(user):
 
     verify_url = reverse("verify")
 
-    verify_data = {
-        "email": "test@example.com",
-        "code": 524469
-    }
+    verify_data = {"email": "test@example.com", "code": 524469}
 
     response = client.post(verify_url, verify_data, format="json")
 
     assert response.status_code == 200
     assert response.data["detail"] == "Email verified. You can now log in."
-
-

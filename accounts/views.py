@@ -106,7 +106,7 @@ class Verification(APIView):
         if user.verification_code != code:
             return Response({"error": "Invalid code"}, status=400)
 
-        #TODO: Add code_expires_at
+        # TODO: Add code_expires_at
         # if user.code_expires_at < timezone.now():
         #     return Response({"error": "Code expired"}, status=400)
         # user.code_expires_at = None
