@@ -10,6 +10,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 # TODO: Add allowed host in .env before deployment
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(",")
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
