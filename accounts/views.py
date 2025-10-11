@@ -115,7 +115,10 @@ class Verification(APIView):
         user.verification_code = None
         user.save()
 
-        return Response({"detail": "Email verified. You can now log in."})
+        return Response(
+            {"detail": "Email verified. You can now log in."},
+            status=status.HTTP_200_OK,
+        )
 
 
 # @extend_schema(tags=["credentials"])
@@ -125,5 +128,6 @@ class PasswordReset:  # TODO: Finish reset password
 
     * email: to recieve code
     """
+
 
 # TODO: Add delete user functionality
