@@ -60,10 +60,6 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_BROWSER_XSS_FILTER = False
 
 # cors
-INSTALLED_APPS += ["corsheaders"]
-
-MIDDLEWARE.insert(0, "corsheaders.middleware.CorsMiddleware")
-
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS").split(",")
 
 CORS_ALLOW_CREDENTIALS = True
