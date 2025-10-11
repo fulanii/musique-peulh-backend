@@ -125,3 +125,5 @@ class PasswordReset:  # TODO: Finish reset password
 
     * email: to recieve code
     """
+
+# TODO: Add delete user functionality
