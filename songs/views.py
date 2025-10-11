@@ -21,8 +21,8 @@ class AllSongs(ListAPIView):
     A view to get all songs
     """
 
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
