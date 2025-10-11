@@ -50,17 +50,40 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    # email = serializers.EmailField()
+    identifier = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
+        identifier = attrs.get("identifier")
+        password = attrs.get("password")
+
+        if not identifier or not password:
+            raise serializers.ValidationError(
+                "Both identifier and password are required."
+            )
+
+        if "@" in identifier:
+            try:
+                user_obj = CustomUser.objects.get(email__iexact=identifier)
+            except CustomUser.DoesNotExist:
+                raise serializers.ValidationError("Invalid email or password.")
+        else:
+            try:
+                user_obj = CustomUser.objects.get(username__iexact=identifier)
+            except CustomUser.DoesNotExist:
+                raise serializers.ValidationError("Invalid username or password.")
+
+        # get user data based on email/username
         user = authenticate(
             request=self.context.get("request"),
-            email=attrs["email"],
+            email=user_obj.email,
             password=attrs["password"],
         )
+
         if not user:
             raise serializers.ValidationError("Invalid credentials")
+
         attrs["user"] = user
         return attrs
 
@@ -79,3 +102,17 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class VerificationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.IntegerField()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = [
+            "id",
+            "email",
+            "username",
+            "is_superuser",
+            "is_staff",
+            "is_active",
+            "is_verified",
+        ]

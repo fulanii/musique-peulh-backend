@@ -3,13 +3,22 @@ from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
+from rest_framework.exceptions import NotFound
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 
 
 from .models import CustomUser
-from .serializer import RegisterSerializer, LoginSerializer, VerificationSerializer
+from .serializer import (
+    RegisterSerializer,
+    LoginSerializer,
+    VerificationSerializer,
+    UserSerializer,
+)
 from .utils import generate_strong_6_digit_number
 
 
@@ -70,6 +79,19 @@ class LoginUser(APIView):
 
         user = serializer_class.validated_data["user"]
 
+        full_user_data = CustomUser.objects.filter(email=user.email).values()
+
+        user_data = full_user_data.first()
+
+        user_data_returned = {
+            "id": user_data["id"],
+            "email": user_data["email"],
+            "username": user_data["username"],
+            "is_staff": user_data["is_staff"],
+            "is_superuser": user_data["is_superuser"],
+            "is_verified": user_data["is_verified"],
+        }
+
         # issue JWT tokens
         refresh = RefreshToken.for_user(user)
 
@@ -77,6 +99,7 @@ class LoginUser(APIView):
             {
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
+                "user_data": user_data_returned,
             },
             status=status.HTTP_200_OK,
         )
@@ -121,6 +144,85 @@ class Verification(APIView):
         )
 
 
+@extend_schema(tags=["credentials"])
+class GetUser(APIView):
+    """
+    View to get user using id
+    """
+
+    serializer_class = UserSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get(self, request, id):
+
+        try:
+            instance = CustomUser.objects.get(id=id)
+
+            serialize_data = UserSerializer(instance)
+
+            return Response(serialize_data.data, status=status.HTTP_200_OK)
+
+        except ObjectDoesNotExist:
+            raise NotFound(detail=f"User with ID '{id}' was not found.")
+
+        except Exception as e:
+            return Response(
+                {"detail": "An internal server error occurred."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+@extend_schema(tags=["credentials"])
+class GetUsers(APIView):
+    """
+    View to get all users
+    """
+
+    serializer_class = UserSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get(self, request):
+        queryset = CustomUser.objects.all()
+
+        serialize_data = UserSerializer(queryset, many=True)
+
+        return Response(serialize_data.data, status=status.HTTP_200_OK)
+
+
+@extend_schema(tags=["credentials"])
+class UpdateToAdmin(APIView):
+    """
+    View to update user to admin using their id
+    """
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def patch(self, request, id):
+        try:
+            instance = CustomUser.objects.get(id=id)
+
+            with transaction.atomic():
+                instance.is_staff = True
+                instance.is_superuser = True
+                instance.save(update_fields=["is_staff", "is_superuser"])
+
+            serialize_data = UserSerializer(instance)
+
+            return Response(serialize_data.data, status=status.HTTP_200_OK)
+
+        except ObjectDoesNotExist:
+            raise NotFound(detail=f"User with ID '{id}' was not found.")
+
+        except Exception as e:
+            return Response(
+                {"detail": "An internal server error occurred."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
 # @extend_schema(tags=["credentials"])
 class PasswordReset:  # TODO: Finish reset password
     """
@@ -131,3 +233,10 @@ class PasswordReset:  # TODO: Finish reset password
 
 
 # TODO: Add delete user functionality
+# @extend_schema(tags=["credentials"])
+class DeleteUser:  # TODO: Finish delete user
+    """
+    View to deleter user in the system using
+
+    * id or email or username
+    """
