@@ -118,6 +118,9 @@ class SongUpload(APIView):
         audio_file = request.FILES["audio_file"]
         cover_file = request.FILES["cover_image"]
 
+        # get duraton 
+        duration = get_audio_duration(audio_file=audio_file)
+
         # upload audio and cover image files to digital ocean spaces
         try:
             urls = upload_do(audio_file=audio_file, cover_file=cover_file)
@@ -131,7 +134,7 @@ class SongUpload(APIView):
         new_song = Song.objects.create(
             title=title,
             artist_name=artist_name,
-            duration=get_audio_duration(audio_file=audio_file),
+            duration=duration,
             uploaded_by=request.user.username,
             audio_file=urls["audio_url"],
             cover_image=urls["cover_url"],
