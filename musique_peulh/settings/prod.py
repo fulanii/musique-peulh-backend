@@ -59,16 +59,27 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Optionally, disable browser XSS protection (deprecated but safe)
 SECURE_BROWSER_XSS_FILTER = False
 
-# TODO: update cors properly move to .env and test
-# INSTALLED_APPS += ["corsheaders"]
-# MIDDLEWARE.insert(0, "corsheaders.middleware.CorsMiddleware")
+# cors
+INSTALLED_APPS += ["corsheaders"]
 
+MIDDLEWARE.insert(0, "corsheaders.middleware.CorsMiddleware")
 
-# CORS_ALLOWED_ORIGINS = [
-#     "https://yourfrontend.com",
-#     "https://app.yourfrontend.com",
-# ]
-# CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS").split(",")
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "origin",
+    "dnt",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+# --------------------------------------------------------------
 
 # TODO: update Logging properly and test
 # LOGGING = {
