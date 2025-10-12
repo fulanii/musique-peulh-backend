@@ -20,7 +20,7 @@ from .serializer import (
     VerificationSerializer,
     UserSerializer,
     ResendCodeSerializer,
-    GetUserSerializer
+    GetUserSerializer,
 )
 from .utils import generate_strong_6_digit_number
 
@@ -152,6 +152,7 @@ class ResendCode(APIView):
     """
     Resend verification code to a user using their email.
     """
+
     serializer_class = ResendCodeSerializer
 
     def get(self, request, *args, **kwargs):
@@ -165,7 +166,7 @@ class ResendCode(APIView):
             if user.is_verified:
                 return Response(
                     {"detail": "User is already verified."},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
             # Generate and save a new code
@@ -279,7 +280,7 @@ class UpdateToAdmin(APIView):
     def patch(self, request):
         data = request.data
         id = data.get("id")
-        
+
         try:
             instance = CustomUser.objects.get(id=id)
 
@@ -335,8 +336,6 @@ class DeleteUser(APIView):
             return Response(
                 {"error": "User not found."}, status=status.HTTP_404_NOT_FOUND
             )
-
-
 
 
 # --------------------------------------------------------------------------------

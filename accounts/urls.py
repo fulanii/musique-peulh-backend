@@ -7,7 +7,7 @@ from .views import (
     GetUsers,
     UpdateToAdmin,
     DeleteUser,
-    ResendCode
+    ResendCode,
 )
 
 urlpatterns = [
@@ -16,7 +16,6 @@ urlpatterns = [
     path("auth/login/", LoginUser.as_view(), name="login"),
     path("auth/verify-email/", Verification.as_view(), name="verify"),
     path("auth/resend-verification/", ResendCode.as_view(), name="verify"),
-
     # user relates
     path("auth/user/", GetUser.as_view(), name="user"),
     path("auth/users/", GetUsers.as_view(), name="users"),

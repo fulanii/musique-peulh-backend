@@ -107,8 +107,10 @@ class VerificationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.IntegerField()
 
+
 class ResendCodeSerializer(serializers.Serializer):
     code = serializers.IntegerField()
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -122,6 +124,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_active",
             "is_verified",
         ]
+
 
 class GetUserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
