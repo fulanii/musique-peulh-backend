@@ -23,7 +23,3 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return f"User with username: {self.username} and email: {self.email}"
-
-    # def save(self, *args, **kwargs):
-    #     self.username = self.username.lower()
-    #     super().save(*args, **kwargs)

@@ -11,7 +11,6 @@ from .models import CustomUser
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = CustomUser
         fields = ["email", "username", "password"]
@@ -37,11 +36,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         if CustomUser.objects.filter(username__iexact=username).exists():
             raise serializers.ValidationError("User with this username already exists.")
 
-        # Uniqueness check (case-insensitive)
-        if CustomUser.objects.filter(email__iexact=username).exists():
-            raise serializers.ValidationError("User with this email already exists.")
-
         return username
+    
+    def validate_email(self, value):
+        # Normalize to lowercase
+        email = value.lower()
+
+        # Uniqueness check (case-insensitive)
+        if CustomUser.objects.filter(email__iexact=email).exists():
+            raise serializers.ValidationError("User with this email already exists.")
+        
+        return email
 
     # using custom create so password gets hashed b4 saving in db
     def create(self, validated_data):
