@@ -118,7 +118,7 @@ class SongUpload(APIView):
         audio_file = request.FILES["audio_file"]
         cover_file = request.FILES["cover_image"]
 
-        # get duraton 
+        # get duraton
         duration = get_audio_duration(audio_file=audio_file)
 
         # upload audio and cover image files to digital ocean spaces

@@ -58,8 +58,12 @@ def upload_do(audio_file, cover_file) -> dict[str, str]:
         )
 
         # Construct URLs
-        audio_url = f"{settings.AWS_S3_ENDPOINT_URL}/{settings.AWS_STORAGE_BUCKET_NAME}/{audio_filename}"
-        cover_url = f"{settings.AWS_S3_ENDPOINT_URL}/{settings.AWS_STORAGE_BUCKET_NAME}/{cover_filename}"
+        audio_url = (
+            f"{settings.AWS_S3_ENDPOINT_URL}/{settings.AUDIO_FOLDER}/{audio_filename}"
+        )
+        cover_url = (
+            f"{settings.AWS_S3_ENDPOINT_URL}/{settings.COVER_FOLDER}/{cover_filename}"
+        )
 
         return {"audio_url": audio_url, "cover_url": cover_url}
 
