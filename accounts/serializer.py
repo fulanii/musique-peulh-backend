@@ -37,6 +37,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         if CustomUser.objects.filter(username__iexact=username).exists():
             raise serializers.ValidationError("User with this username already exists.")
 
+        # Uniqueness check (case-insensitive)
+        if CustomUser.objects.filter(email__iexact=username).exists():
+            raise serializers.ValidationError("User with this email already exists.")
+
         return username
 
     # using custom create so password gets hashed b4 saving in db
@@ -103,6 +107,8 @@ class VerificationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.IntegerField()
 
+class ResendCodeSerializer(serializers.Serializer):
+    code = serializers.IntegerField()
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -116,3 +122,6 @@ class UserSerializer(serializers.ModelSerializer):
             "is_active",
             "is_verified",
         ]
+
+class GetUserSerializer(serializers.Serializer):
+    id = serializers.IntegerField()

@@ -85,8 +85,6 @@ class GetSong(RetrieveAPIView):
             "properties": {
                 "title": {"type": "string"},
                 "artist_name": {"type": "string"},
-                # "duration": {"type": "string"},
-                # "uploaded_by": {"type": "string"},
                 "audio_file": {"type": "string", "format": "binary"},
                 "cover_image": {"type": "string", "format": "binary"},
             },

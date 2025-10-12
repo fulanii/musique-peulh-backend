@@ -6,10 +6,11 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema
-from rest_framework.exceptions import NotFound
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+from rest_framework.exceptions import NotFound, PermissionDenied
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from rest_framework.decorators import action
 
 
 from .models import CustomUser
@@ -18,6 +19,8 @@ from .serializer import (
     LoginSerializer,
     VerificationSerializer,
     UserSerializer,
+    ResendCodeSerializer,
+    GetUserSerializer
 )
 from .utils import generate_strong_6_digit_number
 
@@ -145,6 +148,64 @@ class Verification(APIView):
 
 
 @extend_schema(tags=["credentials"])
+class ResendCode(APIView):
+    """
+    Resend verification code to a user using their email.
+    """
+    serializer_class = ResendCodeSerializer
+
+    def get(self, request, *args, **kwargs):
+        data = request.data
+        email = data.get("email")
+        try:
+            # ✅ Get user by email
+            user = CustomUser.objects.get(email=email)
+
+            # If already verified, don't resend
+            if user.is_verified:
+                return Response(
+                    {"detail": "User is already verified."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Generate and save a new code
+            verification_code = generate_strong_6_digit_number()
+            user.verification_code = verification_code
+            user.save()
+
+            # TODO: send email here
+            # send_verification_email(user.email, verification_code)
+
+            return Response(
+                {
+                    "detail": "A new verification code has been sent to your email.",
+                    "email": user.email,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except ObjectDoesNotExist:
+            raise NotFound(detail=f"No user found with email '{email}'.")
+
+        except Exception as e:
+            return Response(
+                {
+                    "detail": "An unexpected error occurred while resending the verification code.",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+@extend_schema(
+    tags=["user"],
+    request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
+    responses={
+        200: OpenApiResponse(UserSerializer, description="User found"),
+        400: OpenApiResponse(description="Invalid data"),
+        404: OpenApiResponse(description="User not found"),
+    },
+)
 class GetUser(APIView):
     """
     View to get user using id
@@ -152,12 +213,18 @@ class GetUser(APIView):
 
     serializer_class = UserSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
-    def get(self, request, id):
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        user_id = data.get("id")
 
         try:
-            instance = CustomUser.objects.get(id=id)
+            instance = CustomUser.objects.get(id=user_id)
+
+            # Allow only if user is admin OR requesting their own profile
+            if not request.user.is_superuser and request.user.id != instance.id:
+                raise PermissionDenied("You do not have permission to view this user.")
 
             serialize_data = UserSerializer(instance)
 
@@ -173,7 +240,7 @@ class GetUser(APIView):
             )
 
 
-@extend_schema(tags=["credentials"])
+@extend_schema(tags=["user"])
 class GetUsers(APIView):
     """
     View to get all users
@@ -191,7 +258,15 @@ class GetUsers(APIView):
         return Response(serialize_data.data, status=status.HTTP_200_OK)
 
 
-@extend_schema(tags=["credentials"])
+@extend_schema(
+    tags=["user"],
+    request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
+    responses={
+        200: OpenApiResponse(UserSerializer, description="User updated successfully"),
+        400: OpenApiResponse(description="Invalid data"),
+        404: OpenApiResponse(description="User not found"),
+    },
+)
 class UpdateToAdmin(APIView):
     """
     View to update user to admin using their id
@@ -199,8 +274,12 @@ class UpdateToAdmin(APIView):
 
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = UserSerializer
 
-    def patch(self, request, id):
+    def patch(self, request):
+        data = request.data
+        id = data.get("id")
+        
         try:
             instance = CustomUser.objects.get(id=id)
 
@@ -223,20 +302,48 @@ class UpdateToAdmin(APIView):
             )
 
 
+@extend_schema(
+    tags=["user"],
+    request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
+    responses={
+        200: OpenApiResponse(UserSerializer, description="User deleted successfully"),
+        400: OpenApiResponse(description="Invalid data"),
+        404: OpenApiResponse(description="User not found"),
+    },
+)
+class DeleteUser(APIView):
+    """
+    Delete a user by ID.
+    """
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def delete(self, request, *args, **kwargs):
+        data = request.data
+
+        id = data.get("id")
+
+        try:
+            instance = CustomUser.objects.get(id=id)
+            with transaction.atomic():
+                instance.delete()
+            return Response(
+                {"success": True, "deleted_user_id": id}, status=status.HTTP_200_OK
+            )
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "User not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+
+
+
+# --------------------------------------------------------------------------------
 # @extend_schema(tags=["credentials"])
 class PasswordReset:  # TODO: Finish reset password
     """
     View to reset users password in the system using
 
     * email: to recieve code
-    """
-
-
-# TODO: Add delete user functionality
-# @extend_schema(tags=["credentials"])
-class DeleteUser:  # TODO: Finish delete user
-    """
-    View to deleter user in the system using
-
-    * id or email or username
     """
