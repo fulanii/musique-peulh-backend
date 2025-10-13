@@ -20,5 +20,5 @@ urlpatterns = [
     path("auth/user/", GetUser.as_view(), name="user"),
     path("auth/users/", GetUsers.as_view(), name="users"),
     path("auth/user/admin/", UpdateToAdmin.as_view(), name="update_admin"),
-    path("auth/users/delete/", DeleteUser.as_view(), name="users"),
+    path("auth/users/delete/<int:id>", DeleteUser.as_view(), name="users"),
 ]

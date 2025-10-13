@@ -96,8 +96,17 @@ def get_audio_duration(audio_file):
     except Exception as e:
         raise ValidationError(f"Unexpected error reading audio: {str(e)}")
 
+# TODO 1: Finish Auto covert audio files to mp3
+def conver_to_mp3(audio_file):
+    """
+    Takes any audio file and covert to mp3
+        User Uploads File  →  DRF View
+        →  Save file temporarily (/tmp)
+        →  Convert to .mp3 using ffmpeg
+        →  Upload final .mp3 to Spaces
+        →  Delete temp file
+        →  Save URL to DB
+    """
+    ...
 
 # TODO: pick random song cover from a databse of song covers
-
-
-# TODO: Auto covert audio files to mp3
