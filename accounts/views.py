@@ -151,7 +151,15 @@ class Verification(APIView):
         )
 
 
-@extend_schema(tags=["credentials"])
+@extend_schema(
+    tags=["credentials"],
+    request=ResendCodeSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
+    responses={
+        200: OpenApiResponse(description="Code sent successfully"),
+        400: OpenApiResponse(description="Invalid email"),
+        404: OpenApiResponse(description="User not found"),
+    },
+)
 class ResendCode(APIView):
     """
     Resend verification code to a user using their email.
@@ -159,7 +167,7 @@ class ResendCode(APIView):
 
     serializer_class = ResendCodeSerializer
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         data = request.data
         email = data.get("email")
         try:
