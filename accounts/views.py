@@ -160,15 +160,7 @@ class Verification(APIView):
         )
 
 
-@extend_schema(
-    tags=["credentials"],
-    request=GetEmailSerializer,
-    responses={
-        200: OpenApiResponse(description="Code sent succesfully"),
-        400: OpenApiResponse(description="Invalid email"),
-        404: OpenApiResponse(description="User not found"),
-    },
-)
+@extend_schema(tags=["credentials"])
 class ResendCode(APIView):
     """
     Resend verification code to a user using their email.
@@ -328,21 +320,21 @@ class UpdateToAdmin(APIView):
 
 
 @extend_schema(
-    # parameters=[
-    #     OpenApiParameter(
-    #         name='id',
-    #         description='user id to delete',
-    #         required=True,
-    #         type=str
-    # )
-    # ],
+    parameters=[
+        OpenApiParameter(
+            name='id',
+            description='user id to delete',
+            required=True,
+            type=str
+    )
+    ],
     tags=["user"],
-    # request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
-    # responses={
-    #     200: OpenApiResponse(UserSerializer, description="User deleted successfully"),
-    #     400: OpenApiResponse(description="Invalid data"),
-    #     404: OpenApiResponse(description="User not found"),
-    # },
+    request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
+    responses={
+        200: OpenApiResponse(UserSerializer, description="User deleted successfully"),
+        400: OpenApiResponse(description="Invalid data"),
+        404: OpenApiResponse(description="User not found"),
+    },
 )
 class DeleteUser(APIView):
     """

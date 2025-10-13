@@ -14,7 +14,14 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ["email", "username", "password"]
-        extra_kwargs = {"password": {"write_only": True}}
+        extra_kwargs = {
+            "password": {"write_only": True},
+            "username": {
+                "error_messages": {
+                    "max_length": "Username must be between 3 and 8 characters long."
+                }
+            },
+        }
 
     def validate_username(self, value):
         # Normalize to lowercase
@@ -29,7 +36,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Length check
         if len(username) < 3 or len(username) > 8:
             raise serializers.ValidationError(
-                "Username must be between 3 and 8 characters long."
+                "Username must be between 3 to 8 characters long."
             )
 
         # Uniqueness check (case-insensitive)
@@ -114,7 +121,7 @@ class VerificationSerializer(serializers.Serializer):
 
 
 class ResendCodeSerializer(serializers.Serializer):
-    code = serializers.IntegerField()
+    email = serializers.EmailField()
 
 
 class UserSerializer(serializers.ModelSerializer):
