@@ -51,38 +51,73 @@ this backend provides secure authentication, user management, and music data API
 - ☁️ File Storage: DigitalOcean Spaces (s3 compatible)
 - 📧 Email Service: Resend
 - Production URL: https://api.musiquepeulh.com
+- Frontend Repo: https://github.com/fulanii/musique-peulh-frontend
+- 
 
 
 ## 🏗️ Project Structure
 ```
-  musique-peulh-backend/
-  ├── accounts/              # Authentication app
-  │   ├── models.py          # CustomUser model
-  │   ├── serializers.py     # Register, Login serializers
-  │   ├── views.py           # Auth endpoints (register, verify, login)
-  │   └── urls.py
-  │
-  ├── songs/                 # Song management app
-  │   ├── models.py          # Song model
-  │   ├── serializers.py     # Song serializers
-  │   ├── views.py           # Upload, list, detail views
-  │   └── urls.py
-  │
-  ├── musique_peulh/
-  │   ├── settings/
-  │   │   ├── base.py
-  │   │   ├── local.py
-  │   │   └── prod.py
-  │   ├── urls.py
-  │   ├── wsgi.py
-  │   └── asgi.py
-  │
-  ├── utils/
-  │   ├── audio_utils.py     # Extract audio duration, sanitize filenames
-  │   └── upload_do.py       # Upload files to DigitalOcean Spaces
-  │
-  ├── manage.py
-  └── requirements.txt
+├── accounts
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations
+│   │   ├── __init__.py
+│   │   ├── 0001_initial.py
+│   │   ├── 0002_customuser_is_verified.py
+│   │   └── 0003_customuser_verification_code.py
+│   ├── models.py
+│   ├── serializer.py
+│   ├── test
+│   │   ├── test_models.py
+│   │   ├── test_serializers.py
+│   │   └── test_views.py
+│   ├── urls.py
+│   ├── utils.py
+│   └── views.py
+├── db.sqlite3
+├── docs
+│   ├── api-spec.md
+│   └── MVP Architecture.drawio
+├── manage.py
+├── musique_peulh
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── local.py
+│   │   └── prod.py
+│   ├── urls.py
+│   └── wsgi.py
+├── pytest.ini
+├── readme.md
+├── requirements.txt
+└── songs
+    ├── __init__.py
+    ├── admin.py
+    ├── apps.py
+    ├── migrations
+    │   ├── __init__.py
+    │   ├── 0001_initial.py
+    │   ├── 0002_alter_song_upload_date.py
+    │   ├── 0003_alter_song_audio_file_alter_song_cover_image.py
+    │   ├── 0004_alter_song_audio_file_alter_song_cover_image.py
+    │   └── 0005_alter_song_title.py
+    ├── models.py
+    ├── serializer.py
+    ├── test
+    │   ├── __init__.py
+    │   ├── assets
+    │   │   ├── main.html
+    │   │   ├── test_audio.mp3
+    │   │   └── test_cover.avif
+    │   ├── test_models.py
+    │   ├── test_serializers.py
+    │   └── test_views.py
+    ├── urls.py
+    ├── utils.py
+    └── views.py
 ```
 
 
