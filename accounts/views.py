@@ -21,7 +21,7 @@ from .serializer import (
     UserSerializer,
     ResendCodeSerializer,
     GetUserSerializer,
-    GetEmailSerializer
+    GetEmailSerializer,
 )
 from .utils import generate_strong_6_digit_number, send_verification_email
 
@@ -160,13 +160,19 @@ class Verification(APIView):
         )
 
 
-@extend_schema(tags=["credentials"])
+@extend_schema(
+    tags=["credentials"],
+    request=ResendCodeSerializer,
+    responses={
+        200: OpenApiResponse(description="Code sent succesfully"),
+        400: OpenApiResponse(description="Invalid email"),
+        404: OpenApiResponse(description="User not found"),
+    },
+)
 class ResendCode(APIView):
     """
     Resend verification code to a user using their email.
     """
-
-    # serializer_class = ResendCodeSerializer
 
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -320,19 +326,19 @@ class UpdateToAdmin(APIView):
 
 
 @extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='id',
-            description='user id to delete',
-            required=True,
-            type=str
-    )
-    ],
+    # parameters=[
+    #     OpenApiParameter(
+    #         name='id',
+    #         description='user id to delete',
+    #         required=True,
+    #         type=str
+    # )
+    # ],
     tags=["user"],
     request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
     responses={
         200: OpenApiResponse(UserSerializer, description="User deleted successfully"),
-        400: OpenApiResponse(description="Invalid data"),
+        400: OpenApiResponse(description="Invalid id data"),
         404: OpenApiResponse(description="User not found"),
     },
 )
