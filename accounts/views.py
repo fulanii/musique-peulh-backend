@@ -22,7 +22,7 @@ from .serializer import (
     ResendCodeSerializer,
     GetUserSerializer,
 )
-from .utils import generate_strong_6_digit_number
+from .utils import generate_strong_6_digit_number, send_verification_email
 
 
 @extend_schema(tags=["credentials"])
@@ -47,12 +47,16 @@ class RegisterUser(CreateAPIView):
         serializer.instance.verification_code = verification_code
         serializer.instance.save()
 
-        # TODO: Send Verification code email, Update success msg: Account created successfully, verification email sent!
+        send_verification_email(
+            code=str(verification_code),
+            email=serializer.data["email"],
+            username=serializer.data["username"],
+        )
 
         # Custom response data
         custom_data = {
             "registration_success": True,
-            "message": "Account created successfully",
+            "message": "Account created successfully.",
             "id": serializer.instance.pk,  # created object's ID
             "email": serializer.data["email"],
             "username": serializer.data["username"],
@@ -174,8 +178,11 @@ class ResendCode(APIView):
             user.verification_code = verification_code
             user.save()
 
-            # TODO: send email here
-            # send_verification_email(user.email, verification_code)
+            send_verification_email(
+                code=str(verification_code),
+                email=user.email,
+                username=user.username,
+            )
 
             return Response(
                 {
