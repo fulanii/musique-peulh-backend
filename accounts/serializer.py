@@ -37,7 +37,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("User with this username already exists.")
 
         return username
-    
+
     def validate_email(self, value):
         # Normalize to lowercase
         email = value.lower()
@@ -45,7 +45,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Uniqueness check (case-insensitive)
         if CustomUser.objects.filter(email__iexact=email).exists():
             raise serializers.ValidationError("User with this email already exists.")
-        
+
         return email
 
     # using custom create so password gets hashed b4 saving in db
