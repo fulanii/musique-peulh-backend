@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema, OpenApiResponse
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
 from rest_framework.exceptions import NotFound, PermissionDenied
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -21,6 +21,7 @@ from .serializer import (
     UserSerializer,
     ResendCodeSerializer,
     GetUserSerializer,
+    GetEmailSerializer
 )
 from .utils import generate_strong_6_digit_number, send_verification_email
 
@@ -112,7 +113,15 @@ class LoginUser(APIView):
         )
 
 
-@extend_schema(tags=["credentials"])
+@extend_schema(
+    tags=["credentials"],
+    request=VerificationSerializer,
+    responses={
+        200: OpenApiResponse(description="Email verified succesfully"),
+        400: OpenApiResponse(description="Invalid email"),
+        404: OpenApiResponse(description="User not found"),
+    },
+)
 class Verification(APIView):
     """
     View to verify users by checking user verification code
@@ -121,7 +130,7 @@ class Verification(APIView):
     * code: code receive to email
     """
 
-    serializer_class = VerificationSerializer
+    # serializer_class = VerificationSerializer
 
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -151,15 +160,23 @@ class Verification(APIView):
         )
 
 
-@extend_schema(tags=["credentials"])
+@extend_schema(
+    tags=["credentials"],
+    request=GetEmailSerializer,
+    responses={
+        200: OpenApiResponse(description="Code sent succesfully"),
+        400: OpenApiResponse(description="Invalid email"),
+        404: OpenApiResponse(description="User not found"),
+    },
+)
 class ResendCode(APIView):
     """
     Resend verification code to a user using their email.
     """
 
-    serializer_class = ResendCodeSerializer
+    # serializer_class = ResendCodeSerializer
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         data = request.data
         email = data.get("email")
         try:
@@ -311,13 +328,21 @@ class UpdateToAdmin(APIView):
 
 
 @extend_schema(
+    # parameters=[
+    #     OpenApiParameter(
+    #         name='id',
+    #         description='user id to delete',
+    #         required=True,
+    #         type=str
+    # )
+    # ],
     tags=["user"],
-    request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
-    responses={
-        200: OpenApiResponse(UserSerializer, description="User deleted successfully"),
-        400: OpenApiResponse(description="Invalid data"),
-        404: OpenApiResponse(description="User not found"),
-    },
+    # request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
+    # responses={
+    #     200: OpenApiResponse(UserSerializer, description="User deleted successfully"),
+    #     400: OpenApiResponse(description="Invalid data"),
+    #     404: OpenApiResponse(description="User not found"),
+    # },
 )
 class DeleteUser(APIView):
     """
@@ -328,9 +353,7 @@ class DeleteUser(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def delete(self, request, *args, **kwargs):
-        data = request.data
-
-        id = data.get("id")
+        id = kwargs["id"]
 
         try:
             instance = CustomUser.objects.get(id=id)

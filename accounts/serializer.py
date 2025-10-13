@@ -133,3 +133,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class GetUserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
+
+
+class GetEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
