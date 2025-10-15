@@ -1,18 +1,17 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework import status
+from rest_framework import status, viewsets, status
 
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from .models import Song
 from .utils import upload_do, get_audio_duration
-from .serializer import SongSerializer, SongUploadSerializer
-
-# TODO: Add login user restriction [JWTAuthentication] and [IsAdminUser] to respective views
+from .serializer import SongSerializer, SongUploadSerializer, ImagesUploadSerializer
 
 
 @extend_schema(tags=["songs"])
@@ -128,6 +127,8 @@ class SongUpload(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+        # Grab random image
+
         # save song info to db along side media urls
         new_song = Song.objects.create(
             title=title,
@@ -142,6 +143,34 @@ class SongUpload(APIView):
         save_serializer = SongSerializer(new_song)
 
         return Response(save_serializer.data, status=status.HTTP_201_CREATED)
+
+
+@extend_schema(
+    request={
+        "multipart/form-data": {
+            "type": "object",
+            "properties": {
+                "cover_image": {"type": "string", "format": "binary"},
+            },
+        }
+    },
+    # request=ImagesUploadSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
+    responses={
+        200: OpenApiResponse(description="Image uploaded successfully"),
+        400: OpenApiResponse(description="Invalid data"),
+    },
+    tags=["songs-admin"],
+)
+class UploadImages(APIView):
+    """
+    Upload song cover images to Digital Ocean Spaces
+    """
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    parser_classes = [MultiPartParser, FormParser]
+    serializer_class = ImagesUploadSerializer
 
 
 # TODO: Create playlist logic creating/adding/removing songs urls/views

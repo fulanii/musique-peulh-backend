@@ -43,3 +43,11 @@ class SongUploadSerializer(serializers.Serializer):
             )
 
         return data
+
+
+class ImagesUploadSerializer:
+    files = serializers.ListField(
+        child=serializers.FileField(
+            max_length=100000, allow_empty_file=False, use_url=False
+        )
+    )
