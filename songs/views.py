@@ -12,8 +12,6 @@ from .models import Song
 from .utils import upload_do, get_audio_duration
 from .serializer import SongSerializer, SongUploadSerializer
 
-# TODO: Add login user restriction [JWTAuthentication] and [IsAdminUser] to respective views
-
 
 @extend_schema(tags=["songs"])
 class AllSongs(ListAPIView):

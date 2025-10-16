@@ -144,3 +144,13 @@ class GetUserSerializer(serializers.Serializer):
 
 class GetEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
+
+class PasswordResetRequestSerialiazer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class PasswordReset(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.IntegerField()
+    new_password = serializers.CharField()

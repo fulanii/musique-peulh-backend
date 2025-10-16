@@ -13,7 +13,7 @@ from django.db import transaction
 from rest_framework.decorators import action
 
 
-from .models import CustomUser
+from .models import CustomUser, EmailVerification, PasswordResetCode
 from .serializer import (
     RegisterSerializer,
     LoginSerializer,
@@ -22,6 +22,8 @@ from .serializer import (
     ResendCodeSerializer,
     GetUserSerializer,
     GetEmailSerializer,
+    PasswordResetRequestSerialiazer,
+    PasswordReset,
 )
 from .utils import generate_strong_6_digit_number, send_verification_email
 
@@ -45,8 +47,9 @@ class RegisterUser(CreateAPIView):
         self.perform_create(serializer)
 
         verification_code = generate_strong_6_digit_number()
-        serializer.instance.verification_code = verification_code
-        serializer.instance.save()
+        code_data = EmailVerification.objects.create(
+            user=serializer.instance, code=verification_code
+        )
 
         send_verification_email(
             code=str(verification_code),
@@ -76,7 +79,7 @@ class LoginUser(APIView):
     * password
     """
 
-    serializer_class = LoginSerializer()
+    serializer_class = LoginSerializer
 
     def post(self, request):
 
@@ -130,34 +133,41 @@ class Verification(APIView):
     * code: code receive to email
     """
 
-    # serializer_class = VerificationSerializer
+    serializer_class = VerificationSerializer
 
     def post(self, request, *args, **kwargs):
-        data = request.data
-        email = data.get("email")
-        code = data.get("code")
+        try:
+            data = request.data
+            email = data.get("email")
+            entered_code = data.get("code")
 
-        user = CustomUser.objects.get(email=email)
+            user = CustomUser.objects.get(email=email)
 
-        if not user:
-            return Response({"error": "User not found"}, status=404)
+            code_data = EmailVerification.objects.get(user=user.id)
 
-        if user.verification_code != code:
-            return Response({"error": "Invalid code"}, status=400)
+            if user.is_verified:
+                return Response({"error": "User already verified"}, status=400)
 
-        # TODO: Add code_expires_at
-        # if user.code_expires_at < timezone.now():
-        #     return Response({"error": "Code expired"}, status=400)
-        # user.code_expires_at = None
+            if code_data.code != entered_code:
+                return Response({"error": "Invalid code"}, status=400)
 
-        user.is_verified = True
-        user.verification_code = None
-        user.save()
+            # TODO: Add code_expires_at
+            # if user.code_expires_at < timezone.now():
+            #     return Response({"error": "Code expired"}, status=400)
+            # user.code_expires_at = None
 
-        return Response(
-            {"detail": "Email verified. You can now log in."},
-            status=status.HTTP_200_OK,
-        )
+            user.is_verified = True
+            user.save()
+
+            code_data.code = None
+            code_data.save()
+
+            return Response(
+                {"detail": "Email verified."},
+                status=status.HTTP_200_OK,
+            )
+        except ObjectDoesNotExist:
+            raise NotFound(detail=f"No user found with email '{email}'.")
 
 
 @extend_schema(
@@ -171,7 +181,9 @@ class Verification(APIView):
 )
 class ResendCode(APIView):
     """
-    Resend verification code to a user using their email.
+    Resend verification code to a user using their email, for eamil verification
+
+    - email
     """
 
     def post(self, request, *args, **kwargs):
@@ -188,11 +200,16 @@ class ResendCode(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            # Generate and save a new code
+            # Generate and save a new code if doesnt exist update otherwise
             verification_code = generate_strong_6_digit_number()
-            user.verification_code = verification_code
-            user.save()
+            code_data = EmailVerification.objects.update_or_create(user=user)
 
+            if code_data:
+                EmailVerification.objects.filter(user=user).update(
+                    code=verification_code
+                )
+
+            # send email
             send_verification_email(
                 code=str(verification_code),
                 email=user.email,
@@ -201,14 +218,16 @@ class ResendCode(APIView):
 
             return Response(
                 {
-                    "detail": "A new verification code has been sent to your email.",
+                    "detail": "If this email exists, a reset code has been sent to verify yourself.",
                     "email": user.email,
                 },
                 status=status.HTTP_200_OK,
             )
 
         except ObjectDoesNotExist:
-            raise NotFound(detail=f"No user found with email '{email}'.")
+            raise NotFound(
+                detail=f"If this email exists, a reset code has been sent to verify yourself. '{email}'."
+            )
 
         except Exception as e:
             return Response(
@@ -366,11 +385,100 @@ class DeleteUser(APIView):
             )
 
 
-# --------------------------------------------------------------------------------
-# @extend_schema(tags=["credentials"])
-class PasswordReset:  # TODO: Finish reset password
+@extend_schema(tags=["credentials"])
+class PasswordResetRequest(APIView):
     """
-    View to reset users password in the system using
+    View to request code verification for users password reset
 
     * email: to recieve code
     """
+
+    serializer_class = PasswordResetRequestSerialiazer
+
+    def patch(self, request):
+        email = request.data["email"]
+
+        try:
+            # check if user exist
+            user_data = CustomUser.objects.get(email=email)
+
+            # generate new 6 digit code
+            verification_code = generate_strong_6_digit_number()
+
+            # create new PasswordResetCode object if doesnt exist
+            password_reset = PasswordResetCode.objects.update_or_create(user=user_data)
+
+            # if exist update code
+            if password_reset:
+                PasswordResetCode.objects.filter(user=user_data).update(
+                    code=verification_code
+                )
+
+            if send_verification_email(
+                code=str(verification_code),
+                email=email,
+                username=user_data.username,
+            ):
+                return Response(
+                    {
+                        "message": "If this email exists, a reset code has been sent to verify yourself."
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
+            else:
+                return Response(
+                    {"error": "Something went wrong"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except ObjectDoesNotExist:
+            return Response(
+                {
+                    "error": "If this email exists, a reset code has been sent to verify yourself."
+                },
+                status=400,
+            )
+
+
+@extend_schema(tags=["credentials"])
+class PasswordReset(APIView):
+    """
+    View to rest user password in the system
+
+    - email: user email
+    - code: verification code sent to user email
+    - new_password: new password user want to set
+    """
+
+    serializer_class = PasswordReset
+
+    def patch(self, request):
+        email = request.data["email"]
+        code = request.data["code"]
+        new_password = request.data["new_password"]
+
+        try:
+            # check if user exist
+            user = CustomUser.objects.get(email=email)
+
+            reset_code = PasswordResetCode.objects.get(user=user.id)
+
+            # check if code provided by user match one in password reset db
+            if reset_code.code == code:
+                # Hash and update new password in user db
+                # set code in password reset db to NULL
+                # save
+                user.set_password(raw_password=new_password)
+                reset_code.code = None
+                reset_code.save()
+
+                return Response(
+                    {"message": "Password reset successful."}, status=status.HTTP_200_OK
+                )
+            else:
+                return Response({"error": "Invalid code."}, status=400)
+
+        # Handle exceptions
+        except ObjectDoesNotExist:
+            return Response(
+                {"error": "Something went wrong, password can't be reset."}, status=400
+            )
