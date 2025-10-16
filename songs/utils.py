@@ -111,7 +111,4 @@ def conver_to_mp3(audio_file):
     ...
 
 
-# TODO: uplad images to db
-
-
 # TODO: pick random song cover from a databse of song covers

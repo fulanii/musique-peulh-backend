@@ -11,7 +11,7 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from .models import Song
 from .utils import upload_do, get_audio_duration
-from .serializer import SongSerializer, SongUploadSerializer, ImagesUploadSerializer
+from .serializer import SongSerializer, SongUploadSerializer
 
 
 @extend_schema(tags=["songs"])
@@ -170,7 +170,7 @@ class UploadImages(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     parser_classes = [MultiPartParser, FormParser]
-    serializer_class = ImagesUploadSerializer
+    # serializer_class = ImagesUploadSerializer
 
 
 # TODO: Create playlist logic creating/adding/removing songs urls/views

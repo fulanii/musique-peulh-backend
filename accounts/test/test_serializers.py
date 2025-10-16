@@ -38,6 +38,4 @@ class TestSerializer:
         assert "email" in response.data
         assert response.data["email"][0] == "user with this email already exists."
 
-    # TODO: Add 1 login serializer test
-
-    # TODO: Add verification serializer test
+    # TODO: Add remaining tests
