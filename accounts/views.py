@@ -408,7 +408,7 @@ class PasswordResetRequest(APIView):
 
     serializer_class = PasswordResetRequestSerialiazer
 
-    def patch(self, request):
+    def post(self, request):
         email = request.data["email"]
 
         try:
@@ -490,6 +490,9 @@ class PasswordReset(APIView):
                 # set code in password reset db to NULL
                 # save
                 user.set_password(raw_password=new_password)
+                user.is_verified = True
+                user.save()
+
                 reset_code.code = None
                 reset_code.save()
 
