@@ -138,19 +138,19 @@ def send_verification_email(code: str, email: str, username: str) -> bool:
     """
 
     try:
-        formaed_html = EMAIL_HTML_TEMPLATE.replace("**[username]**", username)
-        formaed_html = formaed_html.replace("**[code_here]**", code)
+        # formaed_html = EMAIL_HTML_TEMPLATE.replace("**[username]**", username)
+        # formaed_html = formaed_html.replace("**[code_here]**", code)
 
-        resend.api_key = os.getenv("RESEND_API_KEY")
+        # resend.api_key = os.getenv("RESEND_API_KEY")
 
-        params: resend.Emails.SendParams = {
-            "from": "MusiquePeulh <email-verification@musiquepeulh.com>",
-            "to": [f"{email}"],
-            "subject": "MusiquePeulh Email Verification: Here's the 6-digit verification code you requested",
-            "html": formaed_html,
-        }
+        # params: resend.Emails.SendParams = {
+        #     "from": "MusiquePeulh <email-verification@musiquepeulh.com>",
+        #     "to": [f"{email}"],
+        #     "subject": "MusiquePeulh Email Verification: Here's the 6-digit verification code you requested",
+        #     "html": formaed_html,
+        # }
 
-        email = resend.Emails.send(params)
+        # email = resend.Emails.send(params)
 
         return True
 

@@ -28,6 +28,7 @@ from .serializer import (
 from .utils import generate_strong_6_digit_number, send_verification_email
 
 
+# -------------------- account creation/login
 @extend_schema(tags=["credentials"])
 class RegisterUser(CreateAPIView):
     """
@@ -116,129 +117,7 @@ class LoginUser(APIView):
         )
 
 
-@extend_schema(
-    tags=["credentials"],
-    request=VerificationSerializer,
-    responses={
-        200: OpenApiResponse(description="Email verified succesfully"),
-        400: OpenApiResponse(description="Invalid email"),
-        404: OpenApiResponse(description="User not found"),
-    },
-)
-class Verification(APIView):
-    """
-    View to verify users by checking user verification code
-
-    * email: user email they received code to
-    * code: code receive to email
-    """
-
-    serializer_class = VerificationSerializer
-
-    def post(self, request, *args, **kwargs):
-        try:
-            data = request.data
-            email = data.get("email")
-            entered_code = data.get("code")
-
-            user = CustomUser.objects.get(email=email)
-
-            code_data = EmailVerification.objects.get(user=user.id)
-
-            if user.is_verified:
-                return Response({"error": "User already verified"}, status=400)
-
-            if code_data.code != entered_code:
-                return Response({"error": "Invalid code"}, status=400)
-
-            # TODO: Add code_expires_at
-            # if user.code_expires_at < timezone.now():
-            #     return Response({"error": "Code expired"}, status=400)
-            # user.code_expires_at = None
-
-            user.is_verified = True
-            user.save()
-
-            code_data.code = None
-            code_data.save()
-
-            return Response(
-                {"detail": "Email verified."},
-                status=status.HTTP_200_OK,
-            )
-        except ObjectDoesNotExist:
-            raise NotFound(detail=f"No user found with email '{email}'.")
-
-
-@extend_schema(
-    tags=["credentials"],
-    request=ResendCodeSerializer,
-    responses={
-        200: OpenApiResponse(description="Code sent succesfully"),
-        400: OpenApiResponse(description="Invalid email"),
-        404: OpenApiResponse(description="User not found"),
-    },
-)
-class ResendCode(APIView):
-    """
-    Resend verification code to a user using their email, for eamil verification
-
-    - email
-    """
-
-    def post(self, request, *args, **kwargs):
-        data = request.data
-        email = data.get("email")
-        try:
-            # ✅ Get user by email
-            user = CustomUser.objects.get(email=email)
-
-            # If already verified, don't resend
-            if user.is_verified:
-                return Response(
-                    {"detail": "User is already verified."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            # Generate and save a new code if doesnt exist update otherwise
-            verification_code = generate_strong_6_digit_number()
-            code_data = EmailVerification.objects.update_or_create(user=user)
-
-            if code_data:
-                EmailVerification.objects.filter(user=user).update(
-                    code=verification_code
-                )
-
-            # send email
-            send_verification_email(
-                code=str(verification_code),
-                email=user.email,
-                username=user.username,
-            )
-
-            return Response(
-                {
-                    "detail": "If this email exists, a reset code has been sent to verify yourself.",
-                    "email": user.email,
-                },
-                status=status.HTTP_200_OK,
-            )
-
-        except ObjectDoesNotExist:
-            raise NotFound(
-                detail=f"If this email exists, a reset code has been sent to verify yourself. '{email}'."
-            )
-
-        except Exception as e:
-            return Response(
-                {
-                    "detail": "An unexpected error occurred while resending the verification code.",
-                    "error": str(e),
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-
+# -------------------- User management
 @extend_schema(
     tags=["user"],
     request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
@@ -385,6 +264,140 @@ class DeleteUser(APIView):
             )
 
 
+# -------------------- Email verifications
+@extend_schema(
+    tags=["credentials"],
+    request=VerificationSerializer,
+    responses={
+        200: OpenApiResponse(description="Email verified succesfully"),
+        400: OpenApiResponse(description="Invalid email"),
+        404: OpenApiResponse(description="User not found"),
+    },
+)
+class Verification(APIView):
+    """
+    View to verify users by checking user verification code
+
+    * email: user email they received code to
+    * code: code receive to email
+    """
+
+    serializer_class = VerificationSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            data = request.data
+            email = data.get("email")
+            entered_code = data.get("code")
+
+            user = CustomUser.objects.get(email=email)
+
+            code_data = EmailVerification.objects.get(user=user.id)
+
+            if user.is_verified:
+                return Response({"error": "User already verified"}, status=400)
+
+            if code_data.code != entered_code:
+                return Response({"error": "Invalid code"}, status=400)
+
+            # TODO: Add code_expires_at
+            # if user.code_expires_at < timezone.now():
+            #     return Response({"error": "Code expired"}, status=400)
+            # user.code_expires_at = None
+
+            user.is_verified = True
+            user.save()
+
+            code_data.code = None
+            code_data.save()
+
+            return Response(
+                {"detail": "Email verified."},
+                status=status.HTTP_200_OK,
+            )
+        except ObjectDoesNotExist:
+            raise NotFound(detail=f"Something went wrong, password can't be reset.")
+
+        except Exception as e:
+            return Response(
+                {
+                    "detail": "An unexpected error occurred while resending the verification code.",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+@extend_schema(
+    tags=["credentials"],
+    request=ResendCodeSerializer,
+    responses={
+        200: OpenApiResponse(description="Code sent succesfully"),
+        400: OpenApiResponse(description="Invalid email"),
+        404: OpenApiResponse(description="User not found"),
+    },
+)
+class ResendCode(APIView):
+    """
+    Resend verification code to a user using their email, for eamil verification
+
+    - email
+    """
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        email = data.get("email")
+        try:
+            # ✅ Get user by email
+            user = CustomUser.objects.get(email=email)
+
+            # If already verified, don't resend
+            if user.is_verified:
+                return Response(
+                    {"detail": "User is already verified."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Generate and save a new code if doesnt exist update otherwise
+            verification_code = generate_strong_6_digit_number()
+            code_data = EmailVerification.objects.update_or_create(user=user)
+
+            if code_data:
+                EmailVerification.objects.filter(user=user).update(
+                    code=verification_code
+                )
+
+            # send email
+            send_verification_email(
+                code=str(verification_code),
+                email=user.email,
+                username=user.username,
+            )
+
+            return Response(
+                {
+                    "detail": "If this email exists, a reset code has been sent to verify yourself.",
+                    "email": user.email,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except ObjectDoesNotExist:
+            raise NotFound(
+                detail=f"If this email exists, a reset code has been sent to verify yourself. '{email}'."
+            )
+
+        except Exception as e:
+            return Response(
+                {
+                    "detail": "An unexpected error occurred while resending the verification code.",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+# -------------------- Password
 @extend_schema(tags=["credentials"])
 class PasswordResetRequest(APIView):
     """
@@ -430,12 +443,21 @@ class PasswordResetRequest(APIView):
                     {"error": "Something went wrong"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+
         except ObjectDoesNotExist:
             return Response(
                 {
                     "error": "If this email exists, a reset code has been sent to verify yourself."
                 },
                 status=400,
+            )
+        except Exception as e:
+            return Response(
+                {
+                    "detail": "An unexpected error occurred, while requesting password reset code.",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 
@@ -481,4 +503,12 @@ class PasswordReset(APIView):
         except ObjectDoesNotExist:
             return Response(
                 {"error": "Something went wrong, password can't be reset."}, status=400
+            )
+        except Exception as e:
+            return Response(
+                {
+                    "detail": "An unexpected error occurred reseting password.",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
