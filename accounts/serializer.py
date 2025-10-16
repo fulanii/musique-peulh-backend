@@ -150,6 +150,7 @@ class PasswordResetRequestSerialiazer(serializers.Serializer):
     email = serializers.EmailField()
 
 
+# TODO: add password validation
 class PasswordReset(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.IntegerField()
