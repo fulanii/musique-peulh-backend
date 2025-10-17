@@ -159,6 +159,7 @@ region_name = os.getenv("REGION_NAME")
 AUDIO_FOLDER = os.getenv("AUDIO_FOLDER")
 COVER_FOLDER = os.getenv("COVER_FOLDER")
 AWS_DEFAULT_ACL = None
+DO_DOWNLOAD_ENDPOINT_URL = os.getenv("DO_DOWNLOAD_ENDPOINT_URL")
 
 # Default file storage backend
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"

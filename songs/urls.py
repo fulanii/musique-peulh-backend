@@ -10,8 +10,8 @@ from .views import (
 
 urlpatterns = [
     path("songs/", AllSongs.as_view(), name="all_songs"),
-    path("songs/upload/", SongUpload.as_view(), name="upload"),
-    path("songs/upload/images", UploadImages.as_view(), name="upload"),
+    path("songs/upload/", SongUpload.as_view(), name="upload-songs"),
+    path("songs/upload/images/", UploadImages.as_view(), name="upload-images"),
     path("songs/titles/<str:title>/", GetSong.as_view(), name="song"),
     path("songs/artists/<str:artist_name>/", ArtistSongs.as_view(), name="artist"),
     path(

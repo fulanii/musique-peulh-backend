@@ -10,8 +10,8 @@ from rest_framework import status, viewsets, status
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from .models import Song
-from .utils import upload_do, get_audio_duration
-from .serializer import SongSerializer, SongUploadSerializer
+from .utils import upload_do, get_audio_duration, upload_images, get_random_cover_url
+from .serializer import SongSerializer, SongUploadSerializer, ImagesUploadSerializer
 
 
 @extend_schema(tags=["songs"])
@@ -20,8 +20,8 @@ class AllSongs(ListAPIView):
     A view to get all songs
     """
 
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
@@ -113,22 +113,20 @@ class SongUpload(APIView):
         title = request.data["title"]
         artist_name = request.data["artist_name"]
         audio_file = request.FILES["audio_file"]
-        cover_file = request.FILES["cover_image"]
 
         # get duraton
         duration = get_audio_duration(audio_file=audio_file)
 
-        # upload audio and cover image files to digital ocean spaces
+        # upload audio file to digital ocean spaces
         try:
-            urls = upload_do(audio_file=audio_file, cover_file=cover_file)
+            urls = upload_do(audio_file=audio_file)
         except Exception as e:
             return Response(
                 {"error": f"Upload failed: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        # Grab random image
-
+        random_cover_image = get_random_cover_url()
         # save song info to db along side media urls
         new_song = Song.objects.create(
             title=title,
@@ -136,7 +134,7 @@ class SongUpload(APIView):
             duration=duration,
             uploaded_by=request.user.username,
             audio_file=urls["audio_url"],
-            cover_image=urls["cover_url"],
+            cover_image=random_cover_image,
         )
 
         # serialize data to return to client
@@ -145,32 +143,35 @@ class SongUpload(APIView):
         return Response(save_serializer.data, status=status.HTTP_201_CREATED)
 
 
-@extend_schema(
-    request={
-        "multipart/form-data": {
-            "type": "object",
-            "properties": {
-                "cover_image": {"type": "string", "format": "binary"},
-            },
-        }
-    },
-    # request=ImagesUploadSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
-    responses={
-        200: OpenApiResponse(description="Image uploaded successfully"),
-        400: OpenApiResponse(description="Invalid data"),
-    },
-    tags=["songs-admin"],
-)
 class UploadImages(APIView):
     """
-    Upload song cover images to Digital Ocean Spaces
+    Mass upload song cover images to Digital Ocean Spaces
+    - image: raw image(s) files
     """
 
+    parser_classes = [MultiPartParser]
+    serializer_class = ImagesUploadSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
-    parser_classes = [MultiPartParser, FormParser]
-    # serializer_class = ImagesUploadSerializer
+    @extend_schema(
+        request=ImagesUploadSerializer,
+        responses={
+            200: {"description": "File(s) uploaded successfully"},
+            400: OpenApiResponse(description="Invalid data"),
+        },
+        tags=["songs-admin"],
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = ImagesUploadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        files = serializer.validated_data["files"]
+
+        # upload to D.O
+        if upload_images(files):
+            return Response({"message": f"Successfully uploaded {len(files)} files."})
+        else:
+            return Response({"error": f"Something went wrong while uploading"})
 
 
 # TODO: Create playlist logic creating/adding/removing songs urls/views

@@ -19,7 +19,6 @@ class SongUploadSerializer(serializers.Serializer):
 
     # files
     audio_file = serializers.FileField()
-    cover_image = serializers.ImageField()
 
     def validate(self, data):
         ALLOWED_AUDIO_TYPES = ["audio/mpeg"]
@@ -45,9 +44,9 @@ class SongUploadSerializer(serializers.Serializer):
         return data
 
 
-class ImagesUploadSerializer:
+class ImagesUploadSerializer(serializers.Serializer):
     files = serializers.ListField(
-        child=serializers.FileField(
-            max_length=100000, allow_empty_file=False, use_url=False
-        )
+        child=serializers.FileField(allow_empty_file=False),
+        min_length=1,
+        allow_empty=False,
     )
