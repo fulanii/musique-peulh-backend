@@ -184,7 +184,7 @@ class GetUsersView(APIView):
 
 @extend_schema(
     tags=["user"],
-    request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
+    request=GetUserIdSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
     responses={
         200: OpenApiResponse(UserSerializer, description="User updated successfully"),
         400: OpenApiResponse(description="Invalid data"),
