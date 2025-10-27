@@ -3,16 +3,17 @@ import re
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.validators import UniqueValidator
+from django.contrib.auth.password_validation import validate_password
 
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
 
-from .models import CustomUser
+from .models import CustomUserModel
 
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = CustomUserModel
         fields = ["email", "username", "password"]
         extra_kwargs = {
             "password": {"write_only": True},
@@ -40,7 +41,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             )
 
         # Uniqueness check (case-insensitive)
-        if CustomUser.objects.filter(username__iexact=username).exists():
+        if CustomUserModel.objects.filter(username__iexact=username).exists():
             raise serializers.ValidationError("User with this username already exists.")
 
         return username
@@ -50,14 +51,22 @@ class RegisterSerializer(serializers.ModelSerializer):
         email = value.lower()
 
         # Uniqueness check (case-insensitive)
-        if CustomUser.objects.filter(email__iexact=email).exists():
+        if CustomUserModel.objects.filter(email__iexact=email).exists():
             raise serializers.ValidationError("User with this email already exists.")
 
         return email
 
+    def validate_password(self, value):
+        try:
+            validate_password(value, self.instance)
+        except Exception as e:
+            raise serializers.ValidationError({"password": list(e)})
+
+        return value
+
     # using custom create so password gets hashed b4 saving in db
     def create(self, validated_data):
-        user = CustomUser(
+        user = CustomUserModel(
             email=validated_data["email"], username=validated_data["username"]
         )
         user.set_password(validated_data["password"])  # hashes the password
@@ -66,7 +75,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    # email = serializers.EmailField()
     identifier = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
@@ -81,13 +89,13 @@ class LoginSerializer(serializers.Serializer):
 
         if "@" in identifier:
             try:
-                user_obj = CustomUser.objects.get(email__iexact=identifier)
-            except CustomUser.DoesNotExist:
+                user_obj = CustomUserModel.objects.get(email__iexact=identifier)
+            except CustomUserModel.DoesNotExist:
                 raise serializers.ValidationError("Invalid email or password.")
         else:
             try:
-                user_obj = CustomUser.objects.get(username__iexact=identifier)
-            except CustomUser.DoesNotExist:
+                user_obj = CustomUserModel.objects.get(username__iexact=identifier)
+            except CustomUserModel.DoesNotExist:
                 raise serializers.ValidationError("Invalid username or password.")
 
         # get user data based on email/username
@@ -115,7 +123,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 
-class VerificationSerializer(serializers.Serializer):
+class EmailVerificationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.IntegerField()
 
@@ -126,7 +134,7 @@ class ResendCodeSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = CustomUserModel
         fields = [
             "id",
             "email",
@@ -138,7 +146,7 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
-class GetUserSerializer(serializers.Serializer):
+class GetUserIdSerializer(serializers.Serializer):
     id = serializers.IntegerField()
 
 
@@ -151,7 +159,15 @@ class PasswordResetRequestSerialiazer(serializers.Serializer):
 
 
 # TODO: add password validation
-class PasswordReset(serializers.Serializer):
+class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.IntegerField()
     new_password = serializers.CharField()
+
+    def validate_new_password(self, value):
+        try:
+            validate_password(value, self.instance)
+        except Exception as e:
+            raise serializers.ValidationError({"password": list(e)})
+
+        return value
