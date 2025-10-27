@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -11,26 +11,27 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework.decorators import action
+from django.utils import timezone
+from datetime import timedelta
 
-
-from .models import CustomUser, EmailVerification, PasswordResetCode
+from .models import CustomUserModel, EmailVerificationModel, PasswordResetCodeModel
 from .serializer import (
     RegisterSerializer,
     LoginSerializer,
-    VerificationSerializer,
+    EmailVerificationSerializer,
     UserSerializer,
     ResendCodeSerializer,
-    GetUserSerializer,
+    GetUserIdSerializer,
     GetEmailSerializer,
     PasswordResetRequestSerialiazer,
-    PasswordReset,
+    PasswordResetSerializer,
 )
 from .utils import generate_strong_6_digit_number, send_verification_email
 
 
 # -------------------- account creation/login
 @extend_schema(tags=["credentials"])
-class RegisterUser(CreateAPIView):
+class RegisterUserView(CreateAPIView):
     """
     View to register users in the system using
 
@@ -39,8 +40,9 @@ class RegisterUser(CreateAPIView):
     * password
     """
 
-    queryset = CustomUser.objects.all()
+    queryset = CustomUserModel.objects.all()
     serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -48,7 +50,7 @@ class RegisterUser(CreateAPIView):
         self.perform_create(serializer)
 
         verification_code = generate_strong_6_digit_number()
-        code_data = EmailVerification.objects.create(
+        code_data = EmailVerificationModel.objects.create(
             user=serializer.instance, code=verification_code
         )
 
@@ -72,7 +74,7 @@ class RegisterUser(CreateAPIView):
 
 
 @extend_schema(tags=["credentials"])
-class LoginUser(APIView):
+class LoginUserView(APIView):
     """
     View to log users in the system using
 
@@ -81,6 +83,7 @@ class LoginUser(APIView):
     """
 
     serializer_class = LoginSerializer
+    permission_classes = [AllowAny]
 
     def post(self, request):
 
@@ -91,7 +94,7 @@ class LoginUser(APIView):
 
         user = serializer_class.validated_data["user"]
 
-        full_user_data = CustomUser.objects.filter(email=user.email).values()
+        full_user_data = CustomUserModel.objects.filter(email=user.email).values()
 
         user_data = full_user_data.first()
 
@@ -120,14 +123,14 @@ class LoginUser(APIView):
 # -------------------- User management
 @extend_schema(
     tags=["user"],
-    request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
+    request=GetUserIdSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
     responses={
         200: OpenApiResponse(UserSerializer, description="User found"),
         400: OpenApiResponse(description="Invalid data"),
         404: OpenApiResponse(description="User not found"),
     },
 )
-class GetUser(APIView):
+class GetUserView(APIView):
     """
     View to get user using id
     """
@@ -141,7 +144,7 @@ class GetUser(APIView):
         user_id = data.get("id")
 
         try:
-            instance = CustomUser.objects.get(id=user_id)
+            instance = CustomUserModel.objects.get(id=user_id)
 
             # Allow only if user is admin OR requesting their own profile
             if not request.user.is_superuser and request.user.id != instance.id:
@@ -162,7 +165,7 @@ class GetUser(APIView):
 
 
 @extend_schema(tags=["user"])
-class GetUsers(APIView):
+class GetUsersView(APIView):
     """
     View to get all users
     """
@@ -172,7 +175,7 @@ class GetUsers(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get(self, request):
-        queryset = CustomUser.objects.all()
+        queryset = CustomUserModel.objects.all()
 
         serialize_data = UserSerializer(queryset, many=True)
 
@@ -188,7 +191,7 @@ class GetUsers(APIView):
         404: OpenApiResponse(description="User not found"),
     },
 )
-class UpdateToAdmin(APIView):
+class UpdateToAdminView(APIView):
     """
     View to update user to admin using their id
     """
@@ -202,7 +205,7 @@ class UpdateToAdmin(APIView):
         id = data.get("id")
 
         try:
-            instance = CustomUser.objects.get(id=id)
+            instance = CustomUserModel.objects.get(id=id)
 
             with transaction.atomic():
                 instance.is_staff = True
@@ -224,23 +227,15 @@ class UpdateToAdmin(APIView):
 
 
 @extend_schema(
-    # parameters=[
-    #     OpenApiParameter(
-    #         name='id',
-    #         description='user id to delete',
-    #         required=True,
-    #         type=str
-    # )
-    # ],
     tags=["user"],
-    request=GetUserSerializer,  # 👈 this tells Spectacular that we expect JSON body like UserSerializer
+    request=GetUserIdSerializer,
     responses={
         200: OpenApiResponse(UserSerializer, description="User deleted successfully"),
         400: OpenApiResponse(description="Invalid id data"),
         404: OpenApiResponse(description="User not found"),
     },
 )
-class DeleteUser(APIView):
+class DeleteUserView(APIView):
     """
     Delete a user by ID.
     """
@@ -252,29 +247,29 @@ class DeleteUser(APIView):
         id = kwargs["id"]
 
         try:
-            instance = CustomUser.objects.get(id=id)
+            instance = CustomUserModel.objects.get(id=id)
             with transaction.atomic():
                 instance.delete()
             return Response(
                 {"success": True, "deleted_user_id": id}, status=status.HTTP_200_OK
             )
-        except CustomUser.DoesNotExist:
+        except CustomUserModel.DoesNotExist:
             return Response(
                 {"error": "User not found."}, status=status.HTTP_404_NOT_FOUND
             )
 
 
-# -------------------- Email verifications
+# -------------------- Email verifications ✅
 @extend_schema(
     tags=["credentials"],
-    request=VerificationSerializer,
+    request=EmailVerificationSerializer,
     responses={
         200: OpenApiResponse(description="Email verified succesfully"),
         400: OpenApiResponse(description="Invalid email"),
         404: OpenApiResponse(description="User not found"),
     },
 )
-class Verification(APIView):
+class EmailVerificationView(APIView):
     """
     View to verify users by checking user verification code
 
@@ -282,7 +277,7 @@ class Verification(APIView):
     * code: code receive to email
     """
 
-    serializer_class = VerificationSerializer
+    serializer_class = EmailVerificationSerializer
 
     def post(self, request, *args, **kwargs):
         try:
@@ -290,9 +285,9 @@ class Verification(APIView):
             email = data.get("email")
             entered_code = data.get("code")
 
-            user = CustomUser.objects.get(email=email)
+            user = CustomUserModel.objects.get(email=email)
 
-            code_data = EmailVerification.objects.get(user=user.id)
+            code_data = EmailVerificationModel.objects.get(user=user.id)
 
             if user.is_verified:
                 return Response({"error": "User already verified"}, status=400)
@@ -300,23 +295,21 @@ class Verification(APIView):
             if code_data.code != entered_code:
                 return Response({"error": "Invalid code"}, status=400)
 
-            # TODO: Add code_expires_at
-            # if user.code_expires_at < timezone.now():
-            #     return Response({"error": "Code expired"}, status=400)
-            # user.code_expires_at = None
+            if code_data.is_expired:
+                return Response({"error": "Code expired"}, status=400)
+            code_data.code = None
+            code_data.expires_at = None
+            code_data.save()
 
             user.is_verified = True
             user.save()
-
-            code_data.code = None
-            code_data.save()
 
             return Response(
                 {"detail": "Email verified."},
                 status=status.HTTP_200_OK,
             )
         except ObjectDoesNotExist:
-            raise NotFound(detail=f"Something went wrong, password can't be reset.")
+            raise NotFound(detail=f"Something went wrong.")
 
         except Exception as e:
             return Response(
@@ -337,7 +330,7 @@ class Verification(APIView):
         404: OpenApiResponse(description="User not found"),
     },
 )
-class ResendCode(APIView):
+class ResendCodeView(APIView):
     """
     Resend verification code to a user using their email, for eamil verification
 
@@ -349,7 +342,7 @@ class ResendCode(APIView):
         email = data.get("email")
         try:
             # ✅ Get user by email
-            user = CustomUser.objects.get(email=email)
+            user = CustomUserModel.objects.get(email=email)
 
             # If already verified, don't resend
             if user.is_verified:
@@ -360,12 +353,16 @@ class ResendCode(APIView):
 
             # Generate and save a new code if doesnt exist update otherwise
             verification_code = generate_strong_6_digit_number()
-            code_data = EmailVerification.objects.update_or_create(user=user)
 
-            if code_data:
-                EmailVerification.objects.filter(user=user).update(
-                    code=verification_code
+            verification_instance, created = (
+                EmailVerificationModel.objects.update_or_create(
+                    user=user,
+                    defaults={
+                        "code": verification_code,
+                        "expires_at": timezone.now() + timedelta(minutes=15),
+                    },
                 )
+            )
 
             # send email
             send_verification_email(
@@ -397,9 +394,9 @@ class ResendCode(APIView):
             )
 
 
-# -------------------- Password
+# -------------------- Password ✅
 @extend_schema(tags=["credentials"])
-class PasswordResetRequest(APIView):
+class PasswordResetRequestView(APIView):
     """
     View to request code verification for users password reset
 
@@ -413,19 +410,23 @@ class PasswordResetRequest(APIView):
 
         try:
             # check if user exist
-            user_data = CustomUser.objects.get(email=email)
+            user_data = CustomUserModel.objects.get(email=email)
 
             # generate new 6 digit code
             verification_code = generate_strong_6_digit_number()
 
-            # create new PasswordResetCode object if doesnt exist
-            password_reset = PasswordResetCode.objects.update_or_create(user=user_data)
+            # Generate and save a new code if doesnt exist update otherwise
+            verification_code = generate_strong_6_digit_number()
 
-            # if exist update code
-            if password_reset:
-                PasswordResetCode.objects.filter(user=user_data).update(
-                    code=verification_code
+            verification_instance, created = (
+                PasswordResetCodeModel.objects.update_or_create(
+                    user=user_data,
+                    defaults={
+                        "code": verification_code,
+                        "expires_at": timezone.now() + timedelta(minutes=15),
+                    },
                 )
+            )
 
             if send_verification_email(
                 code=str(verification_code),
@@ -462,7 +463,7 @@ class PasswordResetRequest(APIView):
 
 
 @extend_schema(tags=["credentials"])
-class PasswordReset(APIView):
+class PasswordResetView(APIView):
     """
     View to rest user password in the system
 
@@ -471,7 +472,7 @@ class PasswordReset(APIView):
     - new_password: new password user want to set
     """
 
-    serializer_class = PasswordReset
+    serializer_class = PasswordResetSerializer
 
     def patch(self, request):
         email = request.data["email"]
@@ -480,9 +481,9 @@ class PasswordReset(APIView):
 
         try:
             # check if user exist
-            user = CustomUser.objects.get(email=email)
+            user = CustomUserModel.objects.get(email=email)
 
-            reset_code = PasswordResetCode.objects.get(user=user.id)
+            reset_code = PasswordResetCodeModel.objects.get(user=user.id)
 
             # check if code provided by user match one in password reset db
             if reset_code.code == code:
@@ -494,6 +495,7 @@ class PasswordReset(APIView):
                 user.save()
 
                 reset_code.code = None
+                reset_code.expires_at = None
                 reset_code.save()
 
                 return Response(
