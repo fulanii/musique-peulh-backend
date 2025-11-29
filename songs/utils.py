@@ -128,42 +128,6 @@ def upload_images(files) -> bool:
         raise RuntimeError(f"Unexpected upload error: {str(e)}")
 
 
-# def get_random_cover_url() -> str:
-#     """Return a random image URL from the SongsCovers folder in DigitalOcean Spaces."""
-
-#     # Initialize S3 client
-#     s3 = boto3.client(
-#         "s3",
-#         region_name="sfo3",
-#         endpoint_url= settings.DO_DOWNLOAD_ENDPOINT_URL,
-#         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-#         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-#     )
-
-#     bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-#     folder_prefix = f"{settings.COVER_FOLDER}/"
-
-#     # List all objects in the folder
-#     response = s3.list_objects_v2(Bucket=bucket_name, Prefix=folder_prefix)
-
-#     # Ensure there are items
-#     if "Contents" not in response:
-#         raise ValueError("No files found in SongsCovers folder.")
-
-#     # Get all object keys (skip folders)
-#     object_keys = [
-#         obj["Key"] for obj in response["Contents"] if not obj["Key"].endswith("/")
-#     ]
-
-#     # Pick a random one
-#     random_key = random.choice(object_keys)
-
-#     # Construct full public URL
-#     random_url = f"{settings.AWS_S3_ENDPOINT_URL}/{random_key}"
-
-#     return random_url
-
-
 def get_random_cover_url() -> str:
     """
     Return a random image URL from the SongsCovers folder in DigitalOcean Spaces.
@@ -227,4 +191,3 @@ def conver_to_mp3(audio_file):
         →  Delete temp file
         →  Save URL to DB
     """
-    ...
