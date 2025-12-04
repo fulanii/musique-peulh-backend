@@ -52,7 +52,6 @@ this backend provides secure authentication, user management, and music data API
 - 📧 Email Service: Resend
 - Production URL: https://api.musiquepeulh.com
 - Frontend Repo: https://github.com/fulanii/musique-peulh-frontend
-- 
 
 
 ## 🏗️ Project Structure
