@@ -297,8 +297,9 @@ class EmailVerificationView(APIView):
 
             if code_data.is_expired:
                 return Response({"error": "Code expired"}, status=400)
-            code_data.code = None
-            code_data.expires_at = None
+            # code_data.code = None
+            # code_data.expires_at = None
+            code_data.delete()
             code_data.save()
 
             user.is_verified = True
@@ -312,6 +313,7 @@ class EmailVerificationView(APIView):
             raise NotFound(detail=f"Something went wrong.")
 
         except Exception as e:
+            print(e)
             return Response(
                 {
                     "detail": "An unexpected error occurred while resending the verification code.",
@@ -494,8 +496,9 @@ class PasswordResetView(APIView):
                 user.is_verified = True
                 user.save()
 
-                reset_code.code = None
-                reset_code.expires_at = None
+                # reset_code.code = None
+                # reset_code.expires_at = None
+                reset_code.delete()
                 reset_code.save()
 
                 return Response(
