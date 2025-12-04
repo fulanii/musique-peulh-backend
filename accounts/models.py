@@ -6,7 +6,7 @@ from datetime import timedelta
 
 
 # Create your models here.
-class CustomUserModel(AbstractUser):
+class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(
         unique=True,
@@ -26,8 +26,8 @@ class CustomUserModel(AbstractUser):
         return f"User with username: {self.username} and email: {self.email}"
 
 
-class EmailVerificationModel(models.Model):
-    user = models.ForeignKey(CustomUserModel, on_delete=models.CASCADE)
+class EmailVerification(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     code = models.IntegerField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
@@ -46,8 +46,8 @@ class EmailVerificationModel(models.Model):
         return timezone.now() >= self.expires_at
 
 
-class PasswordResetCodeModel(models.Model):
-    user = models.ForeignKey(CustomUserModel, on_delete=models.CASCADE)
+class PasswordResetCode(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     code = models.IntegerField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()

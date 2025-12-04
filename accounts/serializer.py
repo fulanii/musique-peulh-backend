@@ -8,7 +8,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
 
-from .models import CustomUserModel
+from .models import CustomUser
 
 
 class RegisterSerializer(serializers.ModelSerializer):

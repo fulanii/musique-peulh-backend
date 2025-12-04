@@ -14,7 +14,7 @@ from rest_framework.decorators import action
 from django.utils import timezone
 from datetime import timedelta
 
-from .models import CustomUserModel, EmailVerificationModel, PasswordResetCodeModel
+from .models import CustomUser, EmailVerification, PasswordResetCode
 from .serializer import (
     RegisterSerializer,
     LoginSerializer,
@@ -40,7 +40,7 @@ class RegisterUserView(CreateAPIView):
     * password
     """
 
-    queryset = CustomUserModel.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
@@ -50,7 +50,7 @@ class RegisterUserView(CreateAPIView):
         self.perform_create(serializer)
 
         verification_code = generate_strong_6_digit_number()
-        code_data = EmailVerificationModel.objects.create(
+        code_data = EmailVerification.objects.create(
             user=serializer.instance, code=verification_code
         )
 
@@ -94,7 +94,7 @@ class LoginUserView(APIView):
 
         user = serializer_class.validated_data["user"]
 
-        full_user_data = CustomUserModel.objects.filter(email=user.email).values()
+        full_user_data = CustomUser.objects.filter(email=user.email).values()
 
         user_data = full_user_data.first()
 
@@ -144,7 +144,7 @@ class GetUserView(APIView):
         user_id = data.get("id")
 
         try:
-            instance = CustomUserModel.objects.get(id=user_id)
+            instance = CustomUser.objects.get(id=user_id)
 
             # Allow only if user is admin OR requesting their own profile
             if not request.user.is_superuser and request.user.id != instance.id:
@@ -175,7 +175,7 @@ class GetUsersView(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get(self, request):
-        queryset = CustomUserModel.objects.all()
+        queryset = CustomUser.objects.all()
 
         serialize_data = UserSerializer(queryset, many=True)
 
@@ -205,7 +205,7 @@ class UpdateToAdminView(APIView):
         id = data.get("id")
 
         try:
-            instance = CustomUserModel.objects.get(id=id)
+            instance = CustomUser.objects.get(id=id)
 
             with transaction.atomic():
                 instance.is_staff = True
@@ -247,13 +247,13 @@ class DeleteUserView(APIView):
         id = kwargs["id"]
 
         try:
-            instance = CustomUserModel.objects.get(id=id)
+            instance = CustomUser.objects.get(id=id)
             with transaction.atomic():
                 instance.delete()
             return Response(
                 {"success": True, "deleted_user_id": id}, status=status.HTTP_200_OK
             )
-        except CustomUserModel.DoesNotExist:
+        except CustomUser.DoesNotExist:
             return Response(
                 {"error": "User not found."}, status=status.HTTP_404_NOT_FOUND
             )
@@ -285,9 +285,9 @@ class EmailVerificationView(APIView):
             email = data.get("email")
             entered_code = data.get("code")
 
-            user = CustomUserModel.objects.get(email=email)
+            user = CustomUser.objects.get(email=email)
 
-            code_data = EmailVerificationModel.objects.get(user=user.id)
+            code_data = EmailVerification.objects.get(user=user.id)
 
             if user.is_verified:
                 return Response({"error": "User already verified"}, status=400)
@@ -342,7 +342,7 @@ class ResendCodeView(APIView):
         email = data.get("email")
         try:
             # ✅ Get user by email
-            user = CustomUserModel.objects.get(email=email)
+            user = CustomUser.objects.get(email=email)
 
             # If already verified, don't resend
             if user.is_verified:
@@ -355,7 +355,7 @@ class ResendCodeView(APIView):
             verification_code = generate_strong_6_digit_number()
 
             verification_instance, created = (
-                EmailVerificationModel.objects.update_or_create(
+                EmailVerification.objects.update_or_create(
                     user=user,
                     defaults={
                         "code": verification_code,
@@ -410,7 +410,7 @@ class PasswordResetRequestView(APIView):
 
         try:
             # check if user exist
-            user_data = CustomUserModel.objects.get(email=email)
+            user_data = CustomUser.objects.get(email=email)
 
             # generate new 6 digit code
             verification_code = generate_strong_6_digit_number()
@@ -419,7 +419,7 @@ class PasswordResetRequestView(APIView):
             verification_code = generate_strong_6_digit_number()
 
             verification_instance, created = (
-                PasswordResetCodeModel.objects.update_or_create(
+                PasswordResetCode.objects.update_or_create(
                     user=user_data,
                     defaults={
                         "code": verification_code,
@@ -481,9 +481,9 @@ class PasswordResetView(APIView):
 
         try:
             # check if user exist
-            user = CustomUserModel.objects.get(email=email)
+            user = CustomUser.objects.get(email=email)
 
-            reset_code = PasswordResetCodeModel.objects.get(user=user.id)
+            reset_code = PasswordResetCode.objects.get(user=user.id)
 
             # check if code provided by user match one in password reset db
             if reset_code.code == code:
