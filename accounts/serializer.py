@@ -13,7 +13,7 @@ from .models import CustomUser
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUserModel
+        model = CustomUser
         fields = ["email", "username", "password"]
         extra_kwargs = {
             "password": {"write_only": True},
@@ -41,7 +41,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             )
 
         # Uniqueness check (case-insensitive)
-        if CustomUserModel.objects.filter(username__iexact=username).exists():
+        if CustomUser.objects.filter(username__iexact=username).exists():
             raise serializers.ValidationError("User with this username already exists.")
 
         return username
@@ -51,7 +51,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         email = value.lower()
 
         # Uniqueness check (case-insensitive)
-        if CustomUserModel.objects.filter(email__iexact=email).exists():
+        if CustomUser.objects.filter(email__iexact=email).exists():
             raise serializers.ValidationError("User with this email already exists.")
 
         return email
@@ -66,7 +66,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     # using custom create so password gets hashed b4 saving in db
     def create(self, validated_data):
-        user = CustomUserModel(
+        user = CustomUser(
             email=validated_data["email"], username=validated_data["username"]
         )
         user.set_password(validated_data["password"])  # hashes the password
@@ -89,13 +89,13 @@ class LoginSerializer(serializers.Serializer):
 
         if "@" in identifier:
             try:
-                user_obj = CustomUserModel.objects.get(email__iexact=identifier)
-            except CustomUserModel.DoesNotExist:
+                user_obj = CustomUser.objects.get(email__iexact=identifier)
+            except CustomUser.DoesNotExist:
                 raise serializers.ValidationError("Invalid email or password.")
         else:
             try:
-                user_obj = CustomUserModel.objects.get(username__iexact=identifier)
-            except CustomUserModel.DoesNotExist:
+                user_obj = CustomUser.objects.get(username__iexact=identifier)
+            except CustomUser.DoesNotExist:
                 raise serializers.ValidationError("Invalid username or password.")
 
         # get user data based on email/username
@@ -134,7 +134,7 @@ class ResendCodeSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUserModel
+        model = CustomUser
         fields = [
             "id",
             "email",
