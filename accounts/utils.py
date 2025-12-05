@@ -100,7 +100,7 @@ EMAIL_HTML_TEMPLATE = """
                             </p>
 
                             <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 24px;">
-                                Use the code below to verify your email.
+                                Use the code below to verify your email. Expires in 15 minutes.
                             </p>
 
                             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 30px; border-radius: 4px; border: 1px solid #dddddd; background-color: #f9f9f9;">
