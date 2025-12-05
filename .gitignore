@@ -50,3 +50,5 @@ report.xml
 # **Be careful deleting this if you're collaborating.**
 # */migrations/*.py
 # !*/migrations/__init__.py
+
+backup
