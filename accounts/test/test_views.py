@@ -1,7 +1,7 @@
 import pytest
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from rest_framework.test import APIClient
-from django.core.exceptions import ValidationError
 
 from accounts.models import CustomUser
 

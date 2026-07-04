@@ -1,6 +1,8 @@
-from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_field
 from datetime import datetime
+
+from drf_spectacular.utils import extend_schema_field
+from rest_framework import serializers
+
 from .models import Song
 
 
@@ -17,7 +19,7 @@ class SongUploadSerializer(serializers.Serializer):
     artist_name = serializers.CharField()
     upload_date = serializers.DateField(format="%Y-%m-%d", read_only=True)
 
-    # files
+    # file
     audio_file = serializers.FileField()
 
     def validate(self, data):
@@ -42,11 +44,3 @@ class SongUploadSerializer(serializers.Serializer):
             )
 
         return data
-
-
-class ImagesUploadSerializer(serializers.Serializer):
-    files = serializers.ListField(
-        child=serializers.FileField(allow_empty_file=False),
-        min_length=1,
-        allow_empty=False,
-    )

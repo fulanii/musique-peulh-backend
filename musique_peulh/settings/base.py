@@ -10,10 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
-from dotenv import load_dotenv
-from datetime import timedelta
 import os
+from datetime import timedelta
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -147,19 +148,21 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
 }
 
+# emails
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+BREVO_BASE_URL = os.getenv("BREVO_BASE_URL")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-AWS_ACCESS_KEY_ID = os.getenv("DO_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("DO_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.getenv("DO_STORAGE_BUCKET_NAME")
-AWS_S3_ENDPOINT_URL = os.getenv("DO_S3_ENDPOINT_URL")
-region_name = os.getenv("REGION_NAME")
-AUDIO_FOLDER = os.getenv("AUDIO_FOLDER")
-COVER_FOLDER = os.getenv("COVER_FOLDER")
-AWS_DEFAULT_ACL = None
-DO_DOWNLOAD_ENDPOINT_URL = os.getenv("DO_DOWNLOAD_ENDPOINT_URL")
-
 # Default file storage backend
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+# Cloudflare R2
+R2_URL = os.getenv("R2_URL")
+R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY")
+R2_SECRET_ACCESS_KEY = os.getenv("R2_SECRET_ACCESS_KEY")
+R2_TOKEN_VALUE = os.getenv("R2_TOKEN_VALUE")
+R2_BUCKET_NAME = os.getenv("R2_BUCKET_NAME")
+AUDIO_FOLDER = os.getenv("AUDIO_FOLDER")
+COVER_FOLDER = os.getenv("COVER_FOLDER")

@@ -1,16 +1,9 @@
-from django.urls import path, include
-from .views import (
-    RegisterUserView,
-    LoginUserView,
-    EmailVerificationView,
-    GetUserView,
-    GetUsersView,
-    UpdateToAdminView,
-    DeleteUserView,
-    ResendCodeView,
-    PasswordResetRequestView,
-    PasswordResetView,
-)
+from django.urls import include, path
+
+from .views import (DeleteUserView, EmailVerificationView, GetUsersView,
+                    GetUserView, LoginUserView, PasswordResetRequestView,
+                    PasswordResetView, RegisterUserView, ResendCodeView,
+                    UpdateToAdminView)
 
 urlpatterns = [
     # account related

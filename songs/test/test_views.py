@@ -1,10 +1,9 @@
 import pytest
-
 from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
-from accounts.models import CustomUser
 
+from accounts.models import CustomUser
 from songs.models import Song
 
 

@@ -1,31 +1,26 @@
-from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework.generics import CreateAPIView
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
-from rest_framework.exceptions import NotFound, PermissionDenied
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
-from rest_framework.decorators import action
-from django.utils import timezone
 from datetime import timedelta
 
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
+from django.utils import timezone
+from drf_spectacular.utils import (OpenApiParameter, OpenApiResponse,
+                                   extend_schema)
+from rest_framework import status
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .models import CustomUser, EmailVerification, PasswordResetCode
-from .serializer import (
-    RegisterSerializer,
-    LoginSerializer,
-    EmailVerificationSerializer,
-    UserSerializer,
-    ResendCodeSerializer,
-    GetUserIdSerializer,
-    GetEmailSerializer,
-    PasswordResetRequestSerialiazer,
-    PasswordResetSerializer,
-)
+from .serializer import (EmailVerificationSerializer, GetEmailSerializer,
+                         GetUserIdSerializer, LoginSerializer,
+                         PasswordResetRequestSerialiazer,
+                         PasswordResetSerializer, RegisterSerializer,
+                         ResendCodeSerializer, UserSerializer)
 from .utils import generate_strong_6_digit_number, send_verification_email
 
 
@@ -356,14 +351,12 @@ class ResendCodeView(APIView):
             # Generate and save a new code if doesnt exist update otherwise
             verification_code = generate_strong_6_digit_number()
 
-            verification_instance, created = (
-                EmailVerification.objects.update_or_create(
-                    user=user,
-                    defaults={
-                        "code": verification_code,
-                        "expires_at": timezone.now() + timedelta(minutes=15),
-                    },
-                )
+            verification_instance, created = EmailVerification.objects.update_or_create(
+                user=user,
+                defaults={
+                    "code": verification_code,
+                    "expires_at": timezone.now() + timedelta(minutes=15),
+                },
             )
 
             # send email
@@ -420,14 +413,12 @@ class PasswordResetRequestView(APIView):
             # Generate and save a new code if doesnt exist update otherwise
             verification_code = generate_strong_6_digit_number()
 
-            verification_instance, created = (
-                PasswordResetCode.objects.update_or_create(
-                    user=user_data,
-                    defaults={
-                        "code": verification_code,
-                        "expires_at": timezone.now() + timedelta(minutes=15),
-                    },
-                )
+            verification_instance, created = PasswordResetCode.objects.update_or_create(
+                user=user_data,
+                defaults={
+                    "code": verification_code,
+                    "expires_at": timezone.now() + timedelta(minutes=15),
+                },
             )
 
             if send_verification_email(

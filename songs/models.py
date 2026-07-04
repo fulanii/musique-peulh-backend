@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -19,8 +20,7 @@ class Song(models.Model):
     artist_name = models.CharField(max_length=255)
     duration = models.FloatField()
 
-    audio_file = models.URLField()
-    cover_image = models.URLField()
+    audio_url = models.URLField()
 
     upload_date = models.DateField(auto_now_add=True)
     uploaded_by = models.CharField(max_length=255)

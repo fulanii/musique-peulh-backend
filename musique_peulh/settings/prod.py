@@ -1,5 +1,6 @@
+from urllib.parse import parse_qsl, urlparse
+
 from .base import *
-from urllib.parse import urlparse, parse_qsl
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/

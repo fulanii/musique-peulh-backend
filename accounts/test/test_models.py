@@ -1,8 +1,8 @@
 import pytest
-from django.urls import reverse
-from rest_framework.test import APIClient
-from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ValidationError
+from django.urls import reverse
+from rest_framework.exceptions import ValidationError
+from rest_framework.test import APIClient
 
 from accounts.models import CustomUser
 
