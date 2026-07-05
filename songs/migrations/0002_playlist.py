@@ -38,9 +38,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "songs",
-                    models.ManyToManyField(
-                        blank=True, related_name="playlists", to="songs.song"
-                    ),
+                    models.ManyToManyField(blank=True, related_name="playlists", to="songs.song"),
                 ),
             ],
             options={
@@ -49,8 +47,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name="playlist",
-            constraint=models.UniqueConstraint(
-                fields=("owner", "name"), name="unique_playlist_name_per_owner"
-            ),
+            constraint=models.UniqueConstraint(fields=("owner", "name"), name="unique_playlist_name_per_owner"),
         ),
     ]

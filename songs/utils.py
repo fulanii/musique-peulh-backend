@@ -5,7 +5,7 @@ import uuid
 
 import boto3
 from botocore.client import Config
-from botocore.exceptions import (ClientError, EndpointConnectionError, NoCredentialsError)
+from botocore.exceptions import ClientError, EndpointConnectionError, NoCredentialsError
 from django.conf import settings
 from dotenv import load_dotenv
 from mutagen import MutagenError

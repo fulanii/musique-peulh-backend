@@ -32,11 +32,7 @@ class SongUploadSerializer(serializers.Serializer):
         data["title"] = title
 
         if Song.objects.filter(artist_name=artist_name, title=title).exists():
-            raise serializers.ValidationError(
-                {
-                    "error": f"Artist '{artist_name}' already has a song titled '{title}'."
-                }
-            )
+            raise serializers.ValidationError({"error": f"Artist '{artist_name}' already has a song titled '{title}'."})
 
         if data["audio_file"].content_type not in ALLOWED_AUDIO_TYPES:
             raise serializers.ValidationError(

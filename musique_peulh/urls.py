@@ -19,9 +19,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-from rest_framework_simplejwt.views import (TokenBlacklistView,
-                                            TokenObtainPairView,
-                                            TokenRefreshView)
+from rest_framework_simplejwt.views import TokenBlacklistView, TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     # admin
@@ -31,7 +29,7 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/blacklist/", TokenBlacklistView.as_view(), name="token_blacklist"),
     # my apps urls
-    path("api/", include("accounts.urls")),
+    path("api/auth/", include("accounts.urls")),
     path("api/", include("songs.urls")),
 ]
 

@@ -54,9 +54,7 @@ def test_song_upload(login):
 
     url = reverse("upload")
 
-    with open("test/assets/test_audio.mp3", "rb") as audio, open(
-        "test/assets/test_cover.avif", "rb"
-    ) as cover:
+    with open("test/assets/test_audio.mp3", "rb") as audio, open("test/assets/test_cover.avif", "rb") as cover:
         data = {
             "title": "denke denke",
             "artist_name": "disco fils",

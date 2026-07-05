@@ -166,3 +166,30 @@ R2_TOKEN_VALUE = os.getenv("R2_TOKEN_VALUE")
 R2_BUCKET_NAME = os.getenv("R2_BUCKET_NAME")
 AUDIO_FOLDER = os.getenv("AUDIO_FOLDER")
 COVER_FOLDER = os.getenv("COVER_FOLDER")
+
+# --------------------------------------------------------------
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        }
+    },
+    "formatters": {
+        "standard": {
+            "format": "[{levelname}] - {asctime} - {name} - {message}",
+            "style": "{",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        }
+    },
+}

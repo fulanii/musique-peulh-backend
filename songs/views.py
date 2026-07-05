@@ -133,7 +133,7 @@ class SongUpload(APIView):
             artist_name=artist_name,
             duration=duration,
             uploaded_by=request.user.username,
-            audio_url=url
+            audio_url=url,
         )
 
         # serialize data to return to client

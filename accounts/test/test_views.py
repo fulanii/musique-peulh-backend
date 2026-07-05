@@ -8,9 +8,7 @@ from accounts.models import CustomUser
 
 @pytest.fixture
 def user(db):
-    return CustomUser.objects.create(
-        email="test@example.com", username="test", verification_code=524469
-    )
+    return CustomUser.objects.create(email="test@example.com", username="test", verification_code=524469)
 
 
 @pytest.mark.django_db

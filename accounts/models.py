@@ -8,7 +8,7 @@ from django.utils import timezone
 
 # Create your models here.
 class CustomUser(AbstractUser):
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, error_messages={"unique": "User with this email already exists."})
     username = models.CharField(
         unique=True,
         max_length=8,
@@ -18,6 +18,7 @@ class CustomUser(AbstractUser):
                 message="Only letters, numbers, underscores and dots are allowed.",
             )
         ],
+        error_messages={"unique": "User with this username already exists."},
     )
     is_verified = models.BooleanField(default=False)
     USERNAME_FIELD = "email"  # now use email to login
@@ -26,9 +27,18 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return f"User with username: {self.username} and email: {self.email}"
 
+    def save(self, *args, **kwargs):
+        if self.username:
+            self.username = self.username.lower().strip()
+
+        if self.email:
+            self.email = self.email.lower().strip()
+
+        super().save(*args, **kwargs)
+
 
 class EmailVerification(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     code = models.IntegerField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
