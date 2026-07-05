@@ -1,3 +1,5 @@
+import logging
+
 import os
 import secrets
 
@@ -6,6 +8,8 @@ from brevo.core.api_error import ApiError
 from brevo.transactional_emails import SendTransacEmailRequestSender, SendTransacEmailRequestToItem
 from django.conf import settings
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 
 def generate_strong_6_digit_number():
@@ -23,19 +27,19 @@ def send_verification_email(code: str, email: str, username: str) -> bool:
     """
 
     try:
-        # client = Brevo(api_key=settings.BREVO_API_KEY)
+        client = Brevo(api_key=settings.BREVO_API_KEY)
 
-        # result = client.transactional_emails.send_transac_email(
-        #     template_id=3,
-        #     params={"USERNAME": username, "CODE": code},
-        #     to=[
-        #         SendTransacEmailRequestToItem(
-        #             email=email,
-        #         )
-        #     ],
-        # )
+        result = client.transactional_emails.send_transac_email(
+            template_id=3,
+            params={"USERNAME": username, "CODE": code},
+            to=[
+                SendTransacEmailRequestToItem(
+                    email=email,
+                )
+            ],
+        )
 
-        # print("Email sent. Message ID:", result.message_id)
+        logger.info("Email sent. Message ID:", result.message_id)
 
         return True
 
@@ -50,19 +54,19 @@ def send_password_reset_code_email(code: str, email: str, username: str) -> bool
     """
 
     try:
-        # client = Brevo(api_key=settings.BREVO_API_KEY)
+        client = Brevo(api_key=settings.BREVO_API_KEY)
 
-        # result = client.transactional_emails.send_transac_email(
-        #     template_id=4,
-        #     params={"USERNAME": username, "CODE": code},
-        #     to=[
-        #         SendTransacEmailRequestToItem(
-        #             email=email,
-        #         )
-        #     ],
-        # )
+        result = client.transactional_emails.send_transac_email(
+            template_id=4,
+            params={"USERNAME": username, "CODE": code},
+            to=[
+                SendTransacEmailRequestToItem(
+                    email=email,
+                )
+            ],
+        )
 
-        # print("Email sent. Message ID:", result.message_id)
+        logger.info("Email sent. Message ID:", result.message_id)
 
         return True
 
