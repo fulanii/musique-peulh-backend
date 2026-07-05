@@ -1,23 +1,33 @@
-from drf_spectacular.utils import OpenApiResponse, extend_schema
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
-from rest_framework.parsers import FormParser, MultiPartParser
+from drf_spectacular.utils import extend_schema
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from songs.models import Song
-from songs.serializers import SongSerializer, SongUploadSerializer
-from songs.utils import get_audio_duration, upload_r2
+from songs.serializers import SongSerializer
 
 
 @extend_schema(tags=["songs-admin"])
-class UploadedByUserSongs(ListAPIView):
+class UploadedByUserSongsView(ListAPIView):
     """
-    A view to get all songs uploaded by a certain user
-    - username
+    List all songs uploaded by a specific user (admin only).
+
+    Filters songs by the `uploaded_by` username provided in the URL path.
+
+    Permissions:
+        * IsAuthenticated + IsAdminUser (JWT) — requires a valid access token
+        for a staff/admin user.
+
+    Required fields:
+        * uploaded_by (URL path) — the username whose uploads to list.
+
+    Expected response (200 OK):
+        A list of serialized songs (SongSerializer) uploaded by that user;
+        an empty list if the user has no uploads.
+
+    Errors:
+        * 401 Unauthorized — missing or invalid access token.
+        * 403 Forbidden — authenticated but not an admin user.
     """
 
     authentication_classes = [JWTAuthentication]

@@ -1,22 +1,43 @@
-from drf_spectacular.utils import OpenApiResponse, extend_schema
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
-from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from songs.models import Song
-from songs.serializers import SongSerializer, SongUploadSerializer
-from songs.utils import get_audio_duration, upload_r2
+from songs.serializers import SongSerializer
 
 
 @extend_schema(tags=["songs"])
-class AllSongs(ListAPIView):
+class AllSongsView(ListAPIView):
     """
-    A view to get all songs
+    List all songs in the library.
+
+    Returns every song, serialized with SongSerializer.
+
+    Permissions:
+        * IsAuthenticated (JWT) — a valid access token is required.
+
+    Required fields:
+        * None — this is a GET request with no body.
+
+    Expected response (200 OK):
+        A list of serialized songs (SongSerializer):
+        [
+            {
+                "id": <int>,
+                "title": <str>,
+                "artist_name": <str>,
+                "duration": <str>,
+                "audio_file": <str>,   # URL
+                "cover_image": <str>,  # URL
+                "uploaded_by": <str>,
+                "upload_date": <str>
+            },
+            ...
+        ]
+
+    Errors:
+        * 401 Unauthorized — missing or invalid access token.
     """
 
     authentication_classes = [JWTAuthentication]

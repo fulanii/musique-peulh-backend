@@ -1,7 +1,7 @@
-from drf_spectacular.utils import OpenApiResponse, extend_schema
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
+import logging
+
+from drf_spectacular.utils import extend_schema
+from rest_framework import status
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -11,6 +11,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from songs.models import Song
 from songs.serializers import SongSerializer, SongUploadSerializer
 from songs.utils import get_audio_duration, upload_r2
+
+logger = logging.getLogger(__name__)
 
 
 @extend_schema(
@@ -27,10 +29,36 @@ from songs.utils import get_audio_duration, upload_r2
     },
     tags=["songs-admin"],
 )
-class SongUpload(APIView):
+class SongUploadView(APIView):
     """
-    Upload a song R2 cloudflare,
-    save their URLs in the database.
+    Upload a song to Cloudflare R2 and save its record in the database.
+
+    Validates the multipart upload, pushes the audio file to R2, computes the
+    track duration, and creates a Song row storing the returned media URL and
+    the uploading admin's username.
+
+    Permissions:
+        * IsAuthenticated + IsAdminUser (JWT) — requires a valid access token
+        for a staff/admin user.
+
+    Content type:
+        * multipart/form-data
+
+    Required fields:
+        * title — the song's title
+        * artist_name — the artist's name
+        * audio_file — the audio file to upload
+        * cover_image — the cover image (optional, depending on serializer)
+
+    Expected response (201 Created):
+        The created song, serialized with SongSerializer.
+
+    Errors:
+        * 400 Bad Request — invalid/missing fields (serializer validation).
+        * 401 Unauthorized — missing or invalid access token.
+        * 403 Forbidden — authenticated but not an admin user.
+        * 500 Internal Server Error — the R2 upload failed:
+        {"detail": "Upload failed: <reason>"}
     """
 
     authentication_classes = [JWTAuthentication]
@@ -41,6 +69,7 @@ class SongUpload(APIView):
     serializer_class = SongSerializer
 
     def post(self, request):
+        user = request.user
         # validate data being uploaded
         upload_serializer = SongUploadSerializer(data=request.data)
         upload_serializer.is_valid(raise_exception=True)
@@ -56,8 +85,9 @@ class SongUpload(APIView):
         try:
             url = upload_r2(audio_file=audio_file, file_size=file_size)
         except Exception as e:
+            logger.info(f"Error occured while up uploading song to r2: {e}")
             return Response(
-                {"error": f"Upload failed: {str(e)}"},
+                {"detail": f"Upload failed"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
@@ -76,4 +106,5 @@ class SongUpload(APIView):
         # serialize data to return to client
         save_serializer = SongSerializer(new_song)
 
+        logger.info(f"New song '{title}' - '{artist_name}' uploaded by '{user.username}'")
         return Response(save_serializer.data, status=status.HTTP_201_CREATED)

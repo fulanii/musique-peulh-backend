@@ -11,8 +11,7 @@ from rest_framework.views import APIView
 
 from accounts.models import CustomUser, PasswordResetCode
 from accounts.serializer import PasswordResetRequestSerialiazer
-from accounts.utils import (generate_strong_6_digit_number,
-                            send_password_reset_code_email)
+from accounts.utils import generate_strong_6_digit_number, send_password_reset_code_email
 
 logger = logging.getLogger(__name__)
 
