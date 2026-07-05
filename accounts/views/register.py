@@ -9,8 +9,7 @@ from rest_framework.response import Response
 
 from accounts.models import CustomUser, EmailVerification
 from accounts.serializer import RegisterSerializer
-from accounts.utils import (generate_strong_6_digit_number,
-                            send_verification_email)
+from accounts.utils import generate_strong_6_digit_number, send_verification_email
 
 logger = logging.getLogger(__name__)
 

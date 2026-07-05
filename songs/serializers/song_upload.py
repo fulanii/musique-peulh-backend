@@ -1,17 +1,6 @@
-from datetime import datetime
-
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from .models import Song
-
-
-class SongSerializer(serializers.ModelSerializer):
-    upload_date = serializers.DateField(format="%Y-%m-%d", read_only=True)
-
-    class Meta:
-        model = Song
-        fields = "__all__"
+from songs.models import Song
 
 
 class SongUploadSerializer(serializers.Serializer):

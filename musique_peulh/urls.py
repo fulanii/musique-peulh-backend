@@ -30,7 +30,7 @@ urlpatterns = [
     path("api/token/blacklist/", TokenBlacklistView.as_view(), name="token_blacklist"),
     # my apps urls
     path("api/auth/", include("accounts.urls")),
-    path("api/", include("songs.urls")),
+    path("api/songs/", include("songs.urls")),
 ]
 
 if settings.DEBUG:

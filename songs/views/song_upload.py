@@ -8,72 +8,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import Song
-from .serializer import SongSerializer, SongUploadSerializer
-from .utils import get_audio_duration, upload_r2
-
-
-@extend_schema(tags=["songs"])
-class AllSongs(ListAPIView):
-    """
-    A view to get all songs
-    """
-
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    queryset = Song.objects.all()
-    serializer_class = SongSerializer
-
-
-@extend_schema(tags=["songs"])
-class ArtistSongs(ListAPIView):
-    """
-    A view to get all songs by an artist
-    """
-
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    serializer_class = SongSerializer
-
-    def get_queryset(self):
-        artist_name = self.kwargs["artist_name"]
-        return Song.objects.filter(artist_name=artist_name)
-
-
-@extend_schema(tags=["songs-admin"])
-class UploadedBySongs(ListAPIView):
-    """
-    A view to get all songs uploaded by a certain user
-    - username
-    """
-
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminUser]
-
-    serializer_class = SongSerializer
-
-    def get_queryset(self):
-        uploaded_by = self.kwargs["uploaded_by"]
-        return Song.objects.filter(uploaded_by=uploaded_by)
-
-
-@extend_schema(tags=["songs"])
-class GetSong(RetrieveAPIView):
-    """
-    A view to get a specific song using its title
-    """
-
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    serializer_class = SongSerializer
-    queryset = Song.objects.all()
-    lookup_field = "title"
-
-    def get_object(self):
-        title = self.kwargs.get(self.lookup_field)
-        return Song.objects.get(title=title)
+from songs.models import Song
+from songs.serializers import SongSerializer, SongUploadSerializer
+from songs.utils import get_audio_duration, upload_r2
 
 
 @extend_schema(
