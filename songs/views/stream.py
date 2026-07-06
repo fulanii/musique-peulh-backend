@@ -29,6 +29,9 @@ class StreamView(APIView):
         Permissions:
             * IsAuthenticated (JWT) — a valid access token is required.
 
+        Throttle:
+            * 120/min (scope "stream").
+
         Required fields:
             * song_id (URL path) — the ID of the song to stream.
 
