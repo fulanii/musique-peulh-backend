@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from songs.models import Song
+from songs.throttles import StreamRateThrottle
 from songs.utils import r2_client
 
 logger = logging.getLogger(__name__)
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class StreamView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [StreamRateThrottle]
     serializer_class = None
 
     def get(self, request, song_id):

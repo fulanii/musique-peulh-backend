@@ -13,7 +13,7 @@ class EmailVerificationRateThrottle(AnonRateThrottle):
     scope = "email_verification"
 
 
-class ResendEmailVerificationRateThrottle(UserRateThrottle):
+class ResendEmailVerificationRateThrottle(AnonRateThrottle):
     scope = "resend_email_verification"
 
 

@@ -27,6 +27,9 @@ class RegisterUserView(CreateAPIView):
     Permissions:
         * AllowAny — open endpoint, no authentication required.
 
+    Throttle:
+        * 5/hour (scope "register").
+
     Required fields:
         * email — user's email address (must be unique)
         * username — desired username (must be unique)

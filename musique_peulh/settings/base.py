@@ -135,6 +135,12 @@ REST_FRAMEWORK = {
         "resend_email_verification": "5/hour",
         "password_reset_request": "5/hour",
         "password_reset": "5/hour",
+        "song_upload": "100/min",
+        "songs": "60/min",
+        "artist_songs": "60/min",
+        "user_uploads": "60/min",
+        "song_data": "60/min",
+        "stream": "120/min",
     },
 }
 

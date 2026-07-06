@@ -38,6 +38,9 @@ class EmailVerificationView(APIView):
     Permissions:
         * AllowAny — open endpoint, no authentication required.
 
+    Throttle:
+        * 5/hour (scope "email_verification").
+
     Required fields:
         * email — the email the code was sent to
         * code — the verification code received by email

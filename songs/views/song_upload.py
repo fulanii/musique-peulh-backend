@@ -10,6 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from songs.models import Song
 from songs.serializers import SongSerializer, SongUploadSerializer
+from songs.throttles import SongUpload
 from songs.utils import get_audio_duration, upload_r2
 
 logger = logging.getLogger(__name__)
@@ -62,6 +63,7 @@ class SongUploadView(APIView):
     """
 
     permission_classes = [IsAuthenticated, IsAdminUser]
+    throttle_classes = [SongUpload]
 
     parser_classes = [MultiPartParser, FormParser]
     queryset = Song.objects.all()

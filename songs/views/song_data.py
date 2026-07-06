@@ -5,10 +5,11 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from songs.models import Song
 from songs.serializers import SongSerializer
+from songs.throttles import SongDataRateThrottle
 
 
 @extend_schema(tags=["songs"])
-class GetSongView(RetrieveAPIView):
+class SongDataView(RetrieveAPIView):
     """
     Retrieve a single song by its title.
 
@@ -39,6 +40,7 @@ class GetSongView(RetrieveAPIView):
     """
 
     permission_classes = [IsAuthenticated]
+    throttle_classes = [SongDataRateThrottle]
 
     serializer_class = SongSerializer
     queryset = Song.objects.all()

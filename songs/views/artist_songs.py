@@ -5,6 +5,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from songs.models import Song
 from songs.serializers import SongSerializer
+from songs.throttles import ArtistSongsRateThrottle
 
 
 @extend_schema(tags=["songs"])
@@ -29,6 +30,7 @@ class ArtistSongsView(ListAPIView):
     """
 
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ArtistSongsRateThrottle]
 
     serializer_class = SongSerializer
 
