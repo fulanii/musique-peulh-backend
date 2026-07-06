@@ -42,6 +42,9 @@ class SongUploadView(APIView):
         * IsAuthenticated + IsAdminUser (JWT) — requires a valid access token
         for a staff/admin user.
 
+    Throttle:
+        * 100/min (scope "song_upload").
+
     Content type:
         * multipart/form-data
 

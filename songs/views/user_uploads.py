@@ -19,6 +19,9 @@ class UploadedByUserSongsView(ListAPIView):
         * IsAuthenticated + IsAdminUser (JWT) — requires a valid access token
         for a staff/admin user.
 
+    Throttle:
+        * 60/min (scope "user_uploads").
+
     Required fields:
         * uploaded_by (URL path) — the username whose uploads to list.
 
