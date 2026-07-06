@@ -18,6 +18,9 @@ class SongDataView(RetrieveAPIView):
     Permissions:
         * IsAuthenticated (JWT) — a valid access token is required.
 
+    Throttle:
+        * 60/min (scope "song_data").
+
     Required fields:
         * title (URL path) — the exact title of the song to retrieve.
 

@@ -18,6 +18,9 @@ class ArtistSongsView(ListAPIView):
     Permissions:
         * IsAuthenticated (JWT) — a valid access token is required.
 
+    Throttle:
+        * 60/min (scope "artist_songs").
+
     Required fields:
         * artist_name (URL path) — the artist to filter songs by.
 

@@ -38,6 +38,9 @@ class ResendCodeView(APIView):
     Permissions:
         * AllowAny — open endpoint, no authentication required.
 
+    Throttle:
+        * 5/hour (scope "resend_email_verification").
+
     Required fields:
         * email — the account's email address to resend the code to
 

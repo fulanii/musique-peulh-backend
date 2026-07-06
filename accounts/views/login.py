@@ -26,6 +26,9 @@ class LoginUserView(APIView):
     Permissions:
         * AllowAny — open endpoint, no authentication required.
 
+    Throttle:
+        * 10/min (scope "login").
+
     Required fields:
         * identifier — the user's email address or username
         * password — account password

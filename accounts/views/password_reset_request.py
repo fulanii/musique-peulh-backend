@@ -31,6 +31,9 @@ class PasswordResetRequestView(APIView):
     Permissions:
         * AllowAny — open endpoint, no authentication required.
 
+    Throttle:
+        * 5/hour (scope "password_reset_request").
+
     Required fields:
         * email — the account's email address to send the reset code to
 

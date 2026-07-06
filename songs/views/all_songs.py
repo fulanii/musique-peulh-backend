@@ -18,6 +18,9 @@ class AllSongsView(ListAPIView):
     Permissions:
         * IsAuthenticated (JWT) — a valid access token is required.
 
+    Throttle:
+        * 60/min (scope "songs").
+
     Required fields:
         * None — this is a GET request with no body.
 
