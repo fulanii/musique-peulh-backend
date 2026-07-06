@@ -9,6 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import CustomUser
 from accounts.serializer import LoginSerializer
+from accounts.throttles import LoginRateThrottle
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,7 @@ class LoginUserView(APIView):
 
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
+    throttle_classes = [LoginRateThrottle]
 
     def post(self, request):
         serializer_class = LoginSerializer(data=request.data, context={"request": request})

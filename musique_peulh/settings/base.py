@@ -128,6 +128,14 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_THROTTLE_RATES": {
+        "register": "5/hour",
+        "login": "10/min",
+        "email_verification": "5/hour",
+        "resend_email_verification": "5/hour",
+        "password_reset_request": "5/hour",
+        "password_reset": "5/hour",
+    },
 }
 
 

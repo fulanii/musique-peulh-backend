@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 
 from accounts.models import CustomUser, EmailVerification
 from accounts.serializer import EmailVerificationSerializer
+from accounts.throttles import EmailVerificationRateThrottle
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,7 @@ class EmailVerificationView(APIView):
 
     serializer_class = EmailVerificationSerializer
     permission_classes = [AllowAny]
+    throttle_classes = [EmailVerificationRateThrottle]
 
     def post(self, request, *args, **kwargs):
         try:

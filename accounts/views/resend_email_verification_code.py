@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 
 from accounts.models import CustomUser, EmailVerification
 from accounts.serializer import ResendCodeSerializer
+from accounts.throttles import ResendEmailVerificationRateThrottle
 from accounts.utils import (generate_strong_6_digit_number,
                             send_verification_email)
 
@@ -53,6 +54,7 @@ class ResendCodeView(APIView):
     """
 
     permission_classes = [AllowAny]
+    throttle_classes = [ResendEmailVerificationRateThrottle]
 
     def post(self, request, *args, **kwargs):
         data = request.data

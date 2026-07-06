@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 
 from accounts.models import CustomUser, PasswordResetCode
 from accounts.serializer import PasswordResetSerializer
+from accounts.throttles import PasswordResetRateThrottle
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,7 @@ class PasswordResetView(APIView):
 
     serializer_class = PasswordResetSerializer
     permission_classes = [AllowAny]
+    throttle_classes = [PasswordResetRateThrottle]
 
     def patch(self, request):
         email = request.data["email"]
