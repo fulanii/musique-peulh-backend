@@ -28,7 +28,6 @@ class ArtistSongsView(ListAPIView):
         * 401 Unauthorized — missing or invalid access token.
     """
 
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     serializer_class = SongSerializer

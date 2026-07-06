@@ -61,7 +61,6 @@ class SongUploadView(APIView):
         {"detail": "Upload failed: <reason>"}
     """
 
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     parser_classes = [MultiPartParser, FormParser]

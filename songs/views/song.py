@@ -38,7 +38,6 @@ class GetSongView(RetrieveAPIView):
         * 404 Not Found — no song exists with the given title.
     """
 
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     serializer_class = SongSerializer

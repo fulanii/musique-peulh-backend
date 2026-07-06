@@ -24,7 +24,6 @@ class DeleteUserView(APIView):
     Delete a user by ID.
     """
 
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def delete(self, request, *args, **kwargs):

@@ -15,6 +15,19 @@ from rest_framework.exceptions import ValidationError
 load_dotenv()
 
 
+def r2_client() -> boto3.client:
+    client = boto3.client(
+        "s3",
+        endpoint_url=settings.R2_URL,
+        aws_access_key_id=settings.R2_ACCESS_KEY,
+        aws_secret_access_key=settings.R2_SECRET_ACCESS_KEY,
+        region_name="auto",
+        config=Config(signature_version="s3v4"),
+    )
+
+    return client
+
+
 def sanitize_filename(file_name: str) -> str:
     """
     Sanitize an uploaded filename:
@@ -55,16 +68,8 @@ def upload_r2(audio_file, file_size) -> str:
 
     try:
         audio_filename = sanitize_filename(audio_file.name)
+        s3 = r2_client()
         r2_key = f"songs/{audio_filename}"
-
-        s3 = boto3.client(
-            "s3",
-            endpoint_url=settings.R2_URL,
-            aws_access_key_id=settings.R2_ACCESS_KEY,
-            aws_secret_access_key=settings.R2_SECRET_ACCESS_KEY,
-            region_name="auto",
-            config=Config(signature_version="s3v4"),
-        )
 
         s3.put_object(
             Bucket=settings.R2_BUCKET_NAME,

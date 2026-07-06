@@ -48,7 +48,6 @@ class GetUsersView(APIView):
     """
 
     serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get(self, request):

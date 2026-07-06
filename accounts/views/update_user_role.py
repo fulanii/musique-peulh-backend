@@ -30,7 +30,6 @@ class UpdateToAdminView(APIView):
     View to update user to admin using their id
     """
 
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAdminUser]
     serializer_class = UserSerializer
 

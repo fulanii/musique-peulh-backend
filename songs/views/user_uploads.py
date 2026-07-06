@@ -30,7 +30,6 @@ class UploadedByUserSongsView(ListAPIView):
         * 403 Forbidden — authenticated but not an admin user.
     """
 
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     serializer_class = SongSerializer

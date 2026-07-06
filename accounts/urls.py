@@ -12,7 +12,7 @@ urlpatterns = [
     path("verify-email/", EmailVerificationView.as_view(), name="verify-email"),
     path("resend-verification/", ResendCodeView.as_view(), name="resend-code"),
     path("reset-password-request/", PasswordResetRequestView.as_view(), name="reset-request"),
-    path("auth/reset-password/", PasswordResetView.as_view(), name="reset"),
+    path("reset-password/", PasswordResetView.as_view(), name="reset"),
     # user relates
     path("user/", GetUserView.as_view(), name="user"),
     path("users/", GetUsersView.as_view(), name="users"),

@@ -29,7 +29,6 @@ class AllSongsView(ListAPIView):
                 "artist_name": <str>,
                 "duration": <str>,
                 "audio_file": <str>,   # URL
-                "cover_image": <str>,  # URL
                 "uploaded_by": <str>,
                 "upload_date": <str>
             },
@@ -40,7 +39,6 @@ class AllSongsView(ListAPIView):
         * 401 Unauthorized — missing or invalid access token.
     """
 
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = Song.objects.all()
     serializer_class = SongSerializer
