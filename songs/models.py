@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 
+from accounts.models import CustomUser
+
 
 class SongQuerySet(models.QuerySet):
     def filter(self, *args, **kwargs):
@@ -40,3 +42,13 @@ class Song(models.Model):
         self.uploaded_by = self.uploaded_by.title()
 
         super().save(*args, **kwargs)
+
+
+class Playlist(models.Model):
+    playlist_name = models.CharField(max_length=255)
+    songs = models.ManyToManyField(Song, related_name="playlists", blank=True)
+    playlist_owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="playlists")
+    created_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.playlist_name} by {self.playlist_owner}"
