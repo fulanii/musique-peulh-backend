@@ -1,15 +1,13 @@
 import logging
 
 from drf_spectacular.utils import extend_schema
-
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from songs.serializers import SongEditSerializer
 from songs.models import Song
-
+from songs.serializers import SongEditSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -62,10 +60,7 @@ class SongsEditView(APIView):
         except Song.DoesNotExist:
             logger.info(f"song name or title couldn't be updated. ID: {song_id}")
 
-            return Response(
-                {"detail": "Song not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"detail": "Song not found."}, status=status.HTTP_404_NOT_FOUND)
 
         song_data.title = new_title
         song_data.artist_name = new_artist_name
@@ -73,7 +68,4 @@ class SongsEditView(APIView):
 
         logger.info(f"Song name or title updated by {user.username}")
 
-        return Response(
-            {"detail": "Song name updated."},
-            status=status.HTTP_200_OK
-        )
+        return Response({"detail": "Song name updated."}, status=status.HTTP_200_OK)

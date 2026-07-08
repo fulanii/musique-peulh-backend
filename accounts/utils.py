@@ -4,8 +4,7 @@ import secrets
 
 from brevo import Brevo
 from brevo.core.api_error import ApiError
-from brevo.transactional_emails import (SendTransacEmailRequestSender,
-                                        SendTransacEmailRequestToItem)
+from brevo.transactional_emails import SendTransacEmailRequestSender, SendTransacEmailRequestToItem
 from django.conf import settings
 from dotenv import load_dotenv
 

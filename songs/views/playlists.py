@@ -158,6 +158,7 @@ class PlaylistsView(APIView):
         playlist_data.playlist_name = new_playlist_name
         playlist_data.save()
 
+        logger.info(f"User: '{user.username}' updated their playlist name to '{new_playlist_name}' ")
         return Response({"detail": "Playlist name updated."}, status=status.HTTP_200_OK)
 
 
@@ -198,6 +199,7 @@ class PlaylistDetailView(APIView):
 
         playlist_data.delete()
 
+        logger.info(f"User: '{user.username}' delete their playlist.")
         return Response({"detail": "Playlist deleted."}, status=status.HTTP_200_OK)
 
 
@@ -251,6 +253,7 @@ class PlaylistSongsView(APIView):
 
         songs = playlist.songs.all()
 
+        logger.info(f"User: '{user.username}' fetched '{playlist.playlist_name}' songs.")
         return Response(PlaylistSongResponseSerializer(songs, many=True).data, status=200)
 
 
@@ -305,6 +308,7 @@ class PlaylistSongsDetailView(APIView):
         # in the playlist is a silent no-op — no error, no duplicate row. You don't need to pre-check.
         playlist.songs.add(song)  # M2M add — writes the join-table row
 
+        logger.info(f"User '{user.username}' added '{song.title}' to playlist '{playlist.playlist_name}' ")
         return Response({"detail": "Song added to playlist."}, status=status.HTTP_200_OK)
 
     def delete(self, request, playlist_id, song_id):
@@ -349,4 +353,5 @@ class PlaylistSongsDetailView(APIView):
         # .remove() drops the M2M join row without deleting the Song itself.
         playlist.songs.remove(song)
 
+        logger.info(f"User: '{user.username} rmv '{song.title}' from their playlist '{playlist.playlist_name}' ")
         return Response({"detail": "Song removed from playlist."}, status=status.HTTP_200_OK)
