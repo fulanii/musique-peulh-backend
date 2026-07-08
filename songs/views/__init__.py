@@ -5,3 +5,4 @@ from .song_data import SongDataView
 from .song_upload import SongUploadView
 from .stream import StreamView
 from .user_uploads import UploadedByUserSongsView
+from .songs_edit import SongsEditView

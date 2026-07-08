@@ -11,6 +11,7 @@ from songs.views import (
     SongUploadView,
     StreamView,
     UploadedByUserSongsView,
+    SongsEditView
 )
 
 urlpatterns = [
@@ -24,4 +25,5 @@ urlpatterns = [
     path("playlist/<int:playlist_id>/", PlaylistDetailView.as_view(), name="playlist-detail"),
     path("playlist/<int:playlist_id>/songs/", PlaylistSongsView.as_view(), name="playlist-songs"),
     path("playlist/<int:playlist_id>/songs/<int:song_id>/", PlaylistSongsDetailView.as_view(), name="playlist-songs-detail"),
+    path("edit/", SongsEditView.as_view(), name="song-edit")
 ]
