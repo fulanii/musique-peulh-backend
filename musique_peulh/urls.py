@@ -19,9 +19,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-from rest_framework_simplejwt.views import (TokenBlacklistView,
-                                            TokenObtainPairView,
-                                            TokenRefreshView)
+from rest_framework_simplejwt.views import TokenBlacklistView, TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     # admin
