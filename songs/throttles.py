@@ -23,3 +23,32 @@ class SongDataRateThrottle(UserRateThrottle):
 
 class StreamRateThrottle(UserRateThrottle):
     scope = "stream"
+
+
+# ------------ Playlist (UserRateThrottle)
+class PlaylistCreationRateTrottle(UserRateThrottle):
+    scope = "create-playlist"
+
+
+class PlaylistListRateTrottle(UserRateThrottle):
+    scope = "get-playlists"
+
+
+class PlaylistUpdateRateTrottle(UserRateThrottle):
+    scope = "update-playlist"
+
+
+class PlaylistDeleteRateTrottle(UserRateThrottle):
+    scope = "delete-playlist"
+
+
+class PlaylistSongsRateTrottle(UserRateThrottle):
+    scope = "get-playlist-songs"
+
+
+class PlaylistSongsAddRateTrottle(UserRateThrottle):
+    scope = "add-playlist-song"
+
+
+class PlaylistSongsRmvRateTrottle(UserRateThrottle):
+    scope = "rmv-playlist-song"

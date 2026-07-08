@@ -9,6 +9,15 @@ from rest_framework.views import APIView
 
 from songs.models import Playlist, Song
 from songs.serializers import CreatePlaylistSerializer, PlaylistNameUpdateSerializer, PlaylistResponseSerializer, PlaylistSongResponseSerializer
+from songs.throttles import (
+    PlaylistCreationRateTrottle,
+    PlaylistDeleteRateTrottle,
+    PlaylistListRateTrottle,
+    PlaylistSongsAddRateTrottle,
+    PlaylistSongsRateTrottle,
+    PlaylistSongsRmvRateTrottle,
+    PlaylistUpdateRateTrottle,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +26,14 @@ logger = logging.getLogger(__name__)
 @extend_schema(tags=["playlist"])
 class PlaylistsView(APIView):
     permission_classes = [IsAuthenticated]
-    throttle_classes = []
+
+    def get_throttles(self):
+        # Per-method throttle scopes (this view serves POST/GET/PATCH).
+        if self.request.method == "POST":
+            return [PlaylistCreationRateTrottle()]
+        if self.request.method == "PATCH":
+            return [PlaylistUpdateRateTrottle()]
+        return [PlaylistListRateTrottle()]  # GET
 
     @extend_schema(
         request=CreatePlaylistSerializer,
@@ -32,6 +48,9 @@ class PlaylistsView(APIView):
 
         Permissions:
             * IsAuthenticated (JWT) — any authenticated user may create a playlist.
+
+        Throttle:
+            * 10/min (scope "create-playlist").
 
         Required fields:
             * playlist_name — the name of the playlist to create.
@@ -74,6 +93,9 @@ class PlaylistsView(APIView):
 
         Permissions:
             * IsAuthenticated (JWT) — a valid access token is required.
+
+        Throttle:
+            * 120/min (scope "get-playlists").
 
         Required fields:
             * None — this is a GET request with no body.
@@ -129,6 +151,9 @@ class PlaylistsView(APIView):
             * IsAuthenticated (JWT) — a valid access token is required.
             * The requesting user must own the playlist.
 
+        Throttle:
+            * 10/min (scope "update-playlist").
+
         Required fields:
             * playlist_id — the ID of the playlist to rename.
             * new_playlist_name — the new name for the playlist.
@@ -166,7 +191,7 @@ class PlaylistsView(APIView):
 @extend_schema(tags=["playlist"])
 class PlaylistDetailView(APIView):
     permission_classes = [IsAuthenticated]
-    throttle_classes = []
+    throttle_classes = [PlaylistDeleteRateTrottle]
 
     def delete(self, request, playlist_id):
         """
@@ -178,6 +203,9 @@ class PlaylistDetailView(APIView):
         Permissions:
             * IsAuthenticated (JWT) — a valid access token is required.
             * The requesting user must own the playlist.
+
+        Throttle:
+            * 10/min (scope "delete-playlist").
 
         Required fields:
             * playlist_id (URL path) — the ID of the playlist to delete.
@@ -209,6 +237,7 @@ class PlaylistSongsView(APIView):
 
     serializer_class = PlaylistSongResponseSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [PlaylistSongsRateTrottle]
 
     def get(self, request, playlist_id):
         """
@@ -220,6 +249,9 @@ class PlaylistSongsView(APIView):
         Permissions:
             * IsAuthenticated (JWT) — a valid access token is required.
             * The requesting user must own the playlist.
+
+        Throttle:
+            * 120/min (scope "get-playlist-songs").
 
         Required fields:
             * playlist_id (URL path) — the ID of the playlist whose songs to list.
@@ -262,7 +294,12 @@ class PlaylistSongsView(APIView):
 class PlaylistSongsDetailView(APIView):
 
     permission_classes = [IsAuthenticated]
-    throttle_classes = []
+
+    def get_throttles(self):
+        # Per-method throttle scopes (PATCH = add, DELETE = remove).
+        if self.request.method == "DELETE":
+            return [PlaylistSongsRmvRateTrottle()]
+        return [PlaylistSongsAddRateTrottle()]  # PATCH
 
     @extend_schema(request=None, responses=None)
     def patch(self, request, playlist_id, song_id):
@@ -277,6 +314,9 @@ class PlaylistSongsDetailView(APIView):
         Permissions:
             * IsAuthenticated (JWT) — a valid access token is required.
             * The requesting user must own the playlist.
+
+        Throttle:
+            * 60/min (scope "add-playlist-song").
 
         Required fields:
             * playlist_id (URL path) — the playlist to add the song to.
@@ -323,6 +363,9 @@ class PlaylistSongsDetailView(APIView):
         Permissions:
             * IsAuthenticated (JWT) — a valid access token is required.
             * The requesting user must own the playlist.
+
+        Throttle:
+            * 60/min (scope "rmv-playlist-song").
 
         Required fields:
             * playlist_id (URL path) — the playlist to remove the song from.

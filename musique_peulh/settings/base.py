@@ -141,6 +141,13 @@ REST_FRAMEWORK = {
         "user_uploads": "60/min",
         "song_data": "60/min",
         "stream": "120/min",
+        "create-playlist": "10/min",
+        "get-playlists": "120/min",
+        "update-playlist": "10/min",
+        "delete-playlist": "10/min",
+        "get-playlist-songs": "120/min",
+        "add-playlist-song": "60/min",
+        "rmv-playlist-song": "60/min",
     },
 }
 
