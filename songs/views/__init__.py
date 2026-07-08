@@ -1,6 +1,6 @@
 from .all_songs import AllSongsView
 from .artist_songs import ArtistSongsView
-from .playlists import PlaylistSongsView, PlaylistsView
+from .playlists import PlaylistDetailView, PlaylistSongsDetailView, PlaylistSongsView, PlaylistsView
 from .song_data import SongDataView
 from .song_upload import SongUploadView
 from .stream import StreamView
