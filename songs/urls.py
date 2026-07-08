@@ -3,6 +3,8 @@ from django.urls import include, path
 from songs.views import (
     AllSongsView,
     ArtistSongsView,
+    PlaylistDetailView,
+    PlaylistSongsDetailView,
     PlaylistSongsView,
     PlaylistsView,
     SongDataView,
@@ -19,5 +21,7 @@ urlpatterns = [
     path("upload_by/<str:uploaded_by>/", UploadedByUserSongsView.as_view(), name="upload_by"),
     path("stream/<int:song_id>", StreamView.as_view(), name="streaming"),
     path("playlist/", PlaylistsView.as_view(), name="playlist"),
+    path("playlist/<int:playlist_id>/", PlaylistDetailView.as_view(), name="playlist-detail"),
     path("playlist/<int:playlist_id>/songs/", PlaylistSongsView.as_view(), name="playlist-songs"),
+    path("playlist/<int:playlist_id>/songs/<int:song_id>/", PlaylistSongsDetailView.as_view(), name="playlist-songs-detail"),
 ]

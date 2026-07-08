@@ -68,8 +68,10 @@ def upload_r2(audio_file, file_size) -> str:
 
     try:
         audio_filename = sanitize_filename(audio_file.name)
+        AUDIO_FOLDER = settings.AUDIO_FOLDER
+
         s3 = r2_client()
-        r2_key = f"songs/{audio_filename}"
+        r2_key = f"{AUDIO_FOLDER}/{audio_filename}"
 
         s3.put_object(
             Bucket=settings.R2_BUCKET_NAME,
