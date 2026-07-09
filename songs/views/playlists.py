@@ -193,6 +193,10 @@ class PlaylistDetailView(APIView):
     permission_classes = [IsAuthenticated]
     throttle_classes = [PlaylistDeleteRateTrottle]
 
+    @extend_schema(
+        request=None,
+        responses={200: OpenApiResponse(description="Playlist deleted.")},
+    )
     def delete(self, request, playlist_id):
         """
         Delete a playlist owned by the requesting user.
@@ -301,7 +305,10 @@ class PlaylistSongsDetailView(APIView):
             return [PlaylistSongsRmvRateTrottle()]
         return [PlaylistSongsAddRateTrottle()]  # PATCH
 
-    @extend_schema(request=None, responses=None)
+    @extend_schema(
+        request=None,
+        responses={200: OpenApiResponse(description="Song added to playlist.")},
+    )
     def patch(self, request, playlist_id, song_id):
         """
         Add a song to a playlist owned by the requesting user.
@@ -351,6 +358,10 @@ class PlaylistSongsDetailView(APIView):
         logger.info(f"User '{user.username}' added '{song.title}' to playlist '{playlist.playlist_name}' ")
         return Response({"detail": "Song added to playlist."}, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        request=None,
+        responses={200: OpenApiResponse(description="Song removed from playlist.")},
+    )
     def delete(self, request, playlist_id, song_id):
         """
         Remove a song from a playlist owned by the requesting user.

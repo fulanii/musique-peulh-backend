@@ -1,9 +1,11 @@
+import json
 import os
 import random
 import re
 import uuid
 
 import boto3
+import yt_dlp
 from botocore.client import Config
 from botocore.exceptions import ClientError, EndpointConnectionError, NoCredentialsError
 from django.conf import settings
@@ -11,6 +13,7 @@ from dotenv import load_dotenv
 from mutagen import MutagenError
 from mutagen.mp3 import MP3
 from rest_framework.exceptions import ValidationError
+from yt_dlp.utils import DownloadError
 
 load_dotenv()
 
@@ -85,3 +88,26 @@ def upload_r2(audio_file, file_size) -> str:
 
     except Exception as e:
         raise RuntimeError(f"Unexpected upload error: {str(e)}")
+
+
+def get_yt_data(url: str) -> dict[str:str] | None:
+    """
+    return data about a youtube video:
+    -  `title`, `duration` and `duration_string`, `channel`, `thumbnail`
+    """
+
+    ydl_opts = {"quiet": True, "no_warnings": True, "skip_download": True}
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        try:
+            info = ydl.extract_info(url, download=False)
+        except DownloadError:
+            return None
+
+    return {
+        "title": info.get("title"),
+        "duration": info.get("duration"),  # seconds (int)
+        "duration_string": info.get("duration_string"),  # e.g. "3:45"
+        "channel": info.get("channel") or info.get("uploader"),
+        "thumbnail": info.get("thumbnail"),
+    }
