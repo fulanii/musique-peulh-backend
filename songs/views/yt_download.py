@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 @extend_schema(tags=["songs-admin"])
-class YoutubeDownload(APIView):
+class YoutubeDownloadView(APIView):
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = []
@@ -76,25 +76,33 @@ class YoutubeDownload(APIView):
 
 
     # ------------------- For downloading video
-    # @extend_schema(request=YtDownloadSerializer, responses={202: OpenApiResponse(description="Processing, will automatically upload.")})
-    # def post(self, request):
-    #     """
+    @extend_schema(request=YtDownloadSerializer, responses={202: OpenApiResponse(description="Processing, will automatically upload.")})
+    def post(self, request):
+        """
 
-    #     """
+        """
 
-    #     user = request.user
+        user = request.user
 
-    #     yt_serializer = YtDownloadSerializer(data=request.data)
-    #     yt_serializer.is_valid(raise_exception=True)
-    #     validated_data = yt_serializer.validated_data
+        yt_serializer = YtDownloadSerializer(data=request.data)
+        yt_serializer.is_valid(raise_exception=True)
+        validated_data = yt_serializer.validated_data
 
-    #     url = validated_data.get("url")
+        url = validated_data.get("url")
+        title = validated_data.get("title")
+        artist_name = validated_data.get("artist_name")
 
-    #     # submit background task to download and upload
-    #     download_and_upload(url=url)
+        data = {
+            "url": url,
+            "title": title,
+            "artist_name":artist_name
+        }
 
-    #     # send response processing
-    #     return Response(
-    #         {"detail": "Processing, will automatically upload."},
-    #         status=status.HTTP_202_ACCEPTED
-    #     )
+        # submit background task to download and upload
+        download_and_upload(**data)
+
+        # send response processing
+        return Response(
+            {"detail": "Processing, will automatically upload."},
+            status=status.HTTP_202_ACCEPTED
+        )
