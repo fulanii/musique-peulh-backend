@@ -7,6 +7,6 @@ os.environ.setdefault(
     os.getenv("DJANGO_SETTINGS_MODULE", "musique_peulh.settings.local"),
 )
 
-app = Celery("arvyxai")
+app = Celery("musique_peulh")
 app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
