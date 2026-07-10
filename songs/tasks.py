@@ -42,6 +42,8 @@ def download_and_upload(self, url: str, title: str, artist_name: str, uploaded_b
                     "preferredquality": "192",
                 }
             ],
+            "extractor_args": {"youtube": {"player_client": ["android", "ios", "tv", "mweb", "web_safari"]}},
+
         }
 
         # 1. Download + convert to mp3
