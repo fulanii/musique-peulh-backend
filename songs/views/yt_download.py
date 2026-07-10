@@ -74,12 +74,32 @@ class YoutubeDownloadView(APIView):
         logger.info("Successfully downloaded video data.")
         return Response(info_serializer.data, status=status.HTTP_200_OK)
 
-
     # ------------------- For downloading video
     @extend_schema(request=YtDownloadSerializer, responses={202: OpenApiResponse(description="Processing, will automatically upload.")})
     def post(self, request):
         """
+        Download a YouTube video and upload it as a song (admin only).
 
+        Validates the payload, then queues a background task that downloads the
+        audio, uploads it to R2, and creates the Song record. Returns
+        immediately with 202 — the upload completes asynchronously.
+
+        Permissions:
+            * IsAuthenticated + IsAdminUser (JWT) — requires a valid access
+                token for a staff/admin user.
+
+        Required fields:
+            * url — the YouTube video URL to download.
+            * title — the title to save the song as.
+            * artist_name — the artist to save the song under.
+
+        Expected response (202 Accepted):
+            {"detail": "Processing, will automatically upload."}
+
+        Errors:
+            * 400 Bad Request — invalid/missing fields (serializer validation).
+            * 401 Unauthorized — missing or invalid access token.
+            * 403 Forbidden — authenticated but not an admin user.
         """
 
         user = request.user
@@ -92,17 +112,10 @@ class YoutubeDownloadView(APIView):
         title = validated_data.get("title")
         artist_name = validated_data.get("artist_name")
 
-        data = {
-            "url": url,
-            "title": title,
-            "artist_name":artist_name
-        }
-
         # submit background task to download and upload
-        download_and_upload(**data)
+        download_and_upload.delay(url, title, artist_name, user.username)
+
+        logger.info(f"Youtube video download and upload started by {user.username}")
 
         # send response processing
-        return Response(
-            {"detail": "Processing, will automatically upload."},
-            status=status.HTTP_202_ACCEPTED
-        )
+        return Response({"detail": "Processing, will automatically upload."}, status=status.HTTP_202_ACCEPTED)

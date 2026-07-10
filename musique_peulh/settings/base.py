@@ -184,7 +184,7 @@ R2_TOKEN_VALUE = os.getenv("R2_TOKEN_VALUE")
 R2_BUCKET_NAME = os.getenv("R2_BUCKET_NAME")
 AUDIO_FOLDER = os.getenv("AUDIO_FOLDER")
 
-# --------------------------------------------------------------
+# Logging ---------------------------------------------------
 
 LOGGING = {
     "version": 1,
@@ -210,3 +210,12 @@ LOGGING = {
         }
     },
 }
+
+
+# Celery Configuration Options -----------------------------------
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
