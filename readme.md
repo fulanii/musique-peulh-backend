@@ -2,9 +2,11 @@
 
 Backend for **MusiquePeulh** — a free, open-source music streaming service for
 discovering and listening to Fulani music across West Africa and the Sahel.
-Built with **Django REST Framework**, it provides JWT authentication, user and
-role management, media upload with secure streaming, and playlist APIs that
-power the [frontend client](https://github.com/fulanii/musique-peulh-frontend).
+Built with **Django REST Framework**, this project was developed entirely by me
+without ai, to demonstrate my backend engineering skills and showcase a production-style
+implementation with JWT authentication, user and role management, secure media
+upload/streaming, and playlist APIs that power the
+[frontend client](https://github.com/fulanii/musique-peulh-frontend).
 
 **Live API:** https://api.musiquepeulh.com · Interactive docs at `/api/docs/` (Swagger) — schema via drf-spectacular.
 
@@ -24,6 +26,7 @@ power the [frontend client](https://github.com/fulanii/musique-peulh-frontend).
 ## 🚀 Features
 
 ### 🔐 Authentication & Users
+
 - Custom user model (email as the login identifier), login by email **or** username
 - JWT auth via **SimpleJWT** — access/refresh tokens, refresh rotation, and token **blacklisting** on logout
 - Custom `TokenObtainPair` serializer embedding `username`/`email` claims
@@ -32,6 +35,7 @@ power the [frontend client](https://github.com/fulanii/musique-peulh-frontend).
 - Input validation with clean, field-name-free error messages
 
 ### 🎵 Songs & Streaming
+
 - Upload songs (`.mp3`) + cover art to **Cloudflare R2** (S3-compatible, private bucket)
 - Automatic audio-duration extraction with **mutagen**
 - **Secure streaming via short-lived pre-signed URLs** — audio is never publicly accessible
@@ -39,17 +43,20 @@ power the [frontend client](https://github.com/fulanii/musique-peulh-frontend).
 - Browse endpoints: all songs, by artist, by title, by uploader; admin song metadata editing
 
 ### 📂 Playlists
+
 - Full CRUD — create, list, rename, delete
 - Add / remove songs (many-to-many), all **scoped to the owner**
 - Efficient reads with `prefetch_related` to avoid N+1 queries
 
 ### 🧩 API & Docs
+
 - RESTful design following DRF best practices; class-based views organized per endpoint
 - Auto-generated **OpenAPI 3** schema with **drf-spectacular** (Swagger + Redoc), tagged by domain
 - Serializer-based validation with consistent JSON error responses
 - Per-scope throttling (`AnonRateThrottle` / `UserRateThrottle`) on auth and media endpoints
 
 ### ⚙️ Production-Ready
+
 - Split settings (`base` / `local` / `prod`) with `.env` config via **python-dotenv**
 - Deployed on **Railway** with **Gunicorn** + **PostgreSQL**
 - Security hardening: HSTS, SSL redirect, secure/CSRF cookies, `X-Frame-Options`, proxy SSL header, CORS allow-list
@@ -79,13 +86,13 @@ power the [frontend client](https://github.com/fulanii/musique-peulh-frontend).
 
 ## 🌍 Deployment
 
-| Layer | Service |
-|-------|---------|
+| Layer          | Service                          |
+| -------------- | -------------------------------- |
 | Backend / WSGI | Django REST Framework + Gunicorn |
-| Hosting | Railway |
-| Database | PostgreSQL |
-| Object storage | Cloudflare R2 (S3-compatible) |
-| Email | Brevo |
+| Hosting        | Railway                          |
+| Database       | PostgreSQL                       |
+| Object storage | Cloudflare R2 (S3-compatible)    |
+| Email          | Brevo                            |
 
 - **Production URL:** https://api.musiquepeulh.com
 - **Frontend Repo:** https://github.com/fulanii/musique-peulh-frontend
