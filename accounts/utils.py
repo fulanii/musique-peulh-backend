@@ -38,7 +38,7 @@ def send_verification_email(code: str, email: str, username: str) -> bool:
             ],
         )
 
-        logger.info("Email sent. Message ID:", result.message_id)
+        logger.info("Email sent. Message ID: %s", result.message_id)
 
         return True
 
@@ -65,7 +65,7 @@ def send_password_reset_code_email(code: str, email: str, username: str) -> bool
             ],
         )
 
-        logger.info("Email sent. Message ID:", result.message_id)
+        logger.info(f"Email sent to {username}")
 
         return True
 
